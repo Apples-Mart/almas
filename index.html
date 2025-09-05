@@ -1,7 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجري الإلكتروني</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <h1>متجري الإلكتروني</h1>
+        <nav>
+            <a href="#" id="nav-products">المنتجات</a>
+            <a href="#" id="nav-cart" style="display: none;">سلة المشتريات (<span id="cart-count">0</span>)</a>
+            <a href="#" id="nav-profile" style="display: none;">صفحتي الشخصية</a>
+            <a href="#" id="nav-logout" style="display: none;">تسجيل الخروج</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="auth-page">
+            <div id="login-form">
+                <h2>تسجيل الدخول</h2>
+                <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                <button id="login-btn">دخول</button>
+                <p>ليس لديك حساب؟ <a href="#" id="show-signup">سجل الآن</a></p>
+            </div>
+            <div id="signup-form" style="display: none;">
+                <h2>تسجيل حساب جديد</h2>
+                <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="signup-password" placeholder="كلمة المرور" required>
+                <button id="signup-btn">تسجيل</button>
+                <p>لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
+            </div>
+        </section>
+
+        <section id="products-page" style="display: none;">
+            <h2>منتجاتنا</h2>
+            <div id="product-list">
+                </div>
+        </section>
+
+        <section id="cart-page" style="display: none;">
+            <h2>سلة المشتريات</h2>
+            <div id="cart-items">
+                </div>
+            <hr>
+            <h3>الإجمالي: <span id="cart-total">0.00</span> جنيه</h3>
+            <button id="checkout-btn">إتمام الطلب</button>
+        </section>
+
+        <section id="profile-page" style="display: none;">
+            <h2>صفحتي الشخصية</h2>
+            <p>مرحباً بك، <span id="user-email"></span>!</p>
+
+            <div class="profile-section">
+                <h3>حالة الطلبات الحالية</h3>
+                <div id="order-status">
+                    </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>عملياتي السابقة</h3>
+                <ul id="order-history">
+                    </ul>
+            </div>
+            
+            <div class="profile-section">
+                <h3>مفضلاتي</h3>
+                <div id="favorites-list">
+                    <p>هذه الميزة سيتم إضافتها قريباً.</p>
+                </div>
+            </div>
+        </section>
+
     </main>
+
+    <script type="module" src="script.js"></script>
     
-    <script type="module">
-        
-    <script src="script.js"></script>
 </body>
 </html>
+
+>
