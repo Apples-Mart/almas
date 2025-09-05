@@ -847,6 +847,7 @@
 
             await set(newOrderRef, orderDetails)
                  .then(() => {
+                     // Clear the cart after a successful order
                      const cartRef = ref(database, `users/${currentUserId}/cart`);
                      set(cartRef, null);
 
@@ -949,7 +950,7 @@
             const githubUsername = "masyomas";
             const repoName = "almas";
             const branchName = "main";
-            const imageUrl = `https://raw.githubusercontent.com/${githubusercontent.com/masyomas/almas/main/images/${product['barcode 1']}.jpg`;
+            const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
             
             const listItem = document.createElement('div');
             listItem.className = 'list-item';
