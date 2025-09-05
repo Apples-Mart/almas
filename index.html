@@ -265,6 +265,30 @@
         .form-group {
             margin-bottom: 15px;
         }
+        .payment-option {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .payment-qr-code {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .payment-qr-code img {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+        .payment-qr-code a {
+            margin-top: 10px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
 
         /* --- List Styling (Cart, Favs) --- */
         .item-list {
@@ -331,7 +355,13 @@
         .checkout-section h3 {
             margin-top: 0;
         }
-        .checkout-total {
+        .checkout-total-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .checkout-final-total {
             font-size: 1.5rem;
             font-weight: bold;
             text-align: center;
@@ -396,7 +426,19 @@
                 </div>
                 <div class="checkout-section">
                     <h3>ملخص الطلب</h3>
-                    <p class="checkout-total">المجموع: <span id="cart-total">0</span> جنيه</p>
+                    <div class="checkout-total-price-row">
+                        <span>المجموع:</span>
+                        <span id="cart-subtotal">0</span>
+                    </div>
+                    <div class="checkout-total-price-row">
+                        <span>مصاريف الشحن:</span>
+                        <span>30.00 جنيه</span>
+                    </div>
+                    <hr>
+                    <div class="checkout-final-total">
+                        <span>الإجمالي:</span>
+                        <span id="cart-total">0</span>
+                    </div>
                     <button id="goto-checkout-btn" class="checkout-btn">⚡️ إتمام الشراء</button>
                 </div>
             </div>
@@ -405,10 +447,23 @@
         <div id="checkout-tab" class="tab-content">
             <div style="padding: 20px;">
                 <h2>إتمام الشراء</h2>
-                <div id="checkout-summary" class="item-list">
-                    </div>
                 <div class="checkout-section">
-                    <p class="checkout-total">المجموع الكلي: <span id="checkout-total-final">0</span> جنيه</p>
+                    <h3>ملخص الطلب</h3>
+                    <div id="checkout-summary" class="item-list">
+                        </div>
+                    <div class="checkout-total-price-row">
+                        <span>المجموع:</span>
+                        <span id="checkout-subtotal">0</span>
+                    </div>
+                    <div class="checkout-total-price-row">
+                        <span>مصاريف الشحن:</span>
+                        <span>30.00 جنيه</span>
+                    </div>
+                    <hr>
+                    <div class="checkout-final-total">
+                        <span>الإجمالي:</span>
+                        <span id="checkout-total-final">0</span>
+                    </div>
                 </div>
                 <div class="form-container" style="max-width: 100%;">
                     <h3>معلومات الشحن</h3>
@@ -426,12 +481,42 @@
                     </div>
 
                     <h3>طريقة الدفع</h3>
-                    <div class="form-group">
+                    <div class="payment-option">
                         <label>
                             <input type="radio" name="payment-method" value="cash" checked> الدفع عند الاستلام
                         </label>
                     </div>
+                    <div class="payment-option">
+                        <label>
+                            <input type="radio" name="payment-method" value="instapay"> انستا باي (InstaPay)
+                        </label>
+                        <div id="instapay-qr" class="payment-qr-code">
+                            <p>امسح الكود أو اضغط على الرابط للدفع:</p>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=instapay-link-here">
+                            <a href="instapay-link-here" target="_blank">رابط التحويل</a>
+                        </div>
+                    </div>
+                    <div class="payment-option">
+                        <label>
+                            <input type="radio" name="payment-method" value="wallet"> محفظة
+                        </label>
+                        <div id="wallet-qr" class="payment-qr-code">
+                            <p>امسح الكود أو اضغط على الرابط للدفع:</p>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=wallet-link-here">
+                            <a href="wallet-link-here" target="_blank">رابط التحويل</a>
+                        </div>
+                    </div>
+
                     <button id="place-order-btn" class="checkout-btn">تأكيد الطلب</button>
+                    <p id="whatsapp-info" style="display: none; text-align: center; margin-top: 15px;">
+                        للمتابعة، يرجى التواصل معنا عبر:
+                        <a href="https://wa.me/201000000000" target="_blank" style="color: #25D366;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" width="20" height="20"> واتساب
+                        </a> أو
+                        <a href="https://t.me/your-telegram-username" target="_blank" style="color: #0088cc;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" width="20" height="20"> تليجرام
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -444,6 +529,11 @@
                 <h3>المنتجات المفضلة</h3>
                 <div id="favorites-list" class="item-list">
                      <p>لا توجد منتجات مفضلة.</p>
+                </div>
+                <hr>
+                <h3>طلباتي السابقة</h3>
+                <div id="orders-list" class="item-list">
+                    <p>لا توجد طلبات سابقة.</p>
                 </div>
             </div>
         </div>
@@ -486,6 +576,8 @@
         let categories = {};
         let currentCart = {};
         
+        const SHIPIING_FEES = 30; // 👈 قيمة ثابتة لمصاريف الشحن
+
         const homeContent = document.getElementById('home-content');
         const categoryFilter = document.getElementById('category-filter');
         const searchInput = document.getElementById('search-input');
@@ -503,7 +595,7 @@
         const authMessage = document.getElementById('auth-message');
         const navLogin = document.getElementById('nav-auth');
         const navCart = document.getElementById('nav-cart');
-        const navCheckout = document.getElementById('nav-checkout'); // New element
+        const navCheckout = document.getElementById('nav-checkout');
         const navProfile = document.getElementById('nav-profile');
         const navLogout = document.createElement('a');
         navLogout.id = 'nav-logout';
@@ -512,12 +604,19 @@
         document.querySelector('header nav').appendChild(navLogout);
 
         const cartItemsContainer = document.getElementById('cart-items');
-        const favoritesListContainer = document.getElementById('favorites-list');
+        const cartSubtotalEl = document.getElementById('cart-subtotal');
         const cartTotalEl = document.getElementById('cart-total');
+        const favoritesListContainer = document.getElementById('favorites-list');
+        const ordersListContainer = document.getElementById('orders-list');
         const gotoCheckoutBtn = document.getElementById('goto-checkout-btn');
         const checkoutSummaryContainer = document.getElementById('checkout-summary');
-        const checkoutTotalFinalEl = document.getElementById('checkout-total-final'); // Renamed ID
+        const checkoutSubtotalEl = document.getElementById('checkout-subtotal');
+        const checkoutTotalFinalEl = document.getElementById('checkout-total-final');
         const placeOrderBtn = document.getElementById('place-order-btn');
+        const whatsappInfoEl = document.getElementById('whatsapp-info');
+        const paymentMethodsRadios = document.querySelectorAll('input[name="payment-method"]');
+        const instapayQrCode = document.getElementById('instapay-qr');
+        const walletQrCode = document.getElementById('wallet-qr');
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
@@ -555,7 +654,7 @@
                 document.getElementById('profile-email').textContent = user.email;
                 navLogin.style.display = 'none';
                 navCart.style.display = 'block';
-                navCheckout.style.display = 'block'; // New
+                navCheckout.style.display = 'none'; // Hide checkout link initially
                 navProfile.style.display = 'block';
                 navLogout.style.display = 'block';
                 showTab('home-tab'); 
@@ -564,7 +663,7 @@
                 currentUserId = null;
                 navLogin.style.display = 'block';
                 navCart.style.display = 'none';
-                navCheckout.style.display = 'none'; // New
+                navCheckout.style.display = 'none';
                 navProfile.style.display = 'none';
                 navLogout.style.display = 'none';
                 showTab('auth-tab');
@@ -576,6 +675,7 @@
             cartCountEl.textContent = '0';
             cartItemsContainer.innerHTML = '<p>سلة التسوق فارغة.</p>';
             favoritesListContainer.innerHTML = '<p>لا توجد منتجات مفضلة.</p>';
+            ordersListContainer.innerHTML = '<p>لا توجد طلبات سابقة.</p>';
         }
 
         function setupDatabaseListeners() {
@@ -587,7 +687,11 @@
                 const cartItems = snapshot.val() || {};
                 currentCart = cartItems; // Save a copy of the cart
                 renderCart(cartItems);
-                renderCheckoutPage(cartItems); // Update checkout page as well
+                if (Object.keys(cartItems).length > 0) {
+                    navCheckout.style.display = 'block';
+                } else {
+                    navCheckout.style.display = 'none';
+                }
             });
 
             // Listen for Favorites changes
@@ -595,6 +699,13 @@
             onValue(favsRef, (snapshot) => {
                 const favItems = snapshot.val() || {};
                 renderFavorites(favItems);
+            });
+            
+            // Listen for Orders changes
+            const ordersRef = ref(database, `users/${currentUserId}/orders`);
+            onValue(ordersRef, (snapshot) => {
+                const orders = snapshot.val() || {};
+                renderOrders(orders);
             });
         }
         
@@ -717,6 +828,8 @@
 
             const orderDetails = {
                 items: currentCart,
+                subtotal: calculateSubtotal(currentCart),
+                shippingFees: SHIPIING_FEES,
                 total: calculateTotal(currentCart),
                 shippingInfo: {
                     name: shippingName,
@@ -734,28 +847,31 @@
 
             await set(newOrderRef, orderDetails)
                  .then(() => {
-                     // Clear the cart after a successful order
                      const cartRef = ref(database, `users/${currentUserId}/cart`);
                      set(cartRef, null);
 
                      alert("تم تأكيد طلبك بنجاح! سيتم التواصل معك قريباً.");
-                     showTab('home-tab');
+                     whatsappInfoEl.style.display = 'block';
                  })
                  .catch(error => alert(`خطأ: ${error.message}`));
         }
 
-        function calculateTotal(items) {
-            let total = 0;
+        function calculateSubtotal(items) {
+            let subtotal = 0;
             for (const sku in items) {
-                total += items[sku].price * (items[sku].quantity || 1);
+                subtotal += items[sku].price * (items[sku].quantity || 1);
             }
-            return total;
+            return subtotal;
+        }
+
+        function calculateTotal(items) {
+            return calculateSubtotal(items) + SHIPIING_FEES;
         }
 
         // --- Rendering Functions ---
         function renderCart(cartItems) {
             cartItemsContainer.innerHTML = '';
-            let total = 0;
+            let subtotal = 0;
             let itemCount = 0;
 
             if (Object.keys(cartItems).length === 0) {
@@ -765,12 +881,13 @@
                     const product = cartItems[sku];
                     const itemEl = createListItem(product, 'cart');
                     cartItemsContainer.appendChild(itemEl);
-                    total += product.price * (product.quantity || 1);
+                    subtotal += product.price * (product.quantity || 1);
                     itemCount++;
                 }
             }
             cartCountEl.textContent = itemCount.toString();
-            cartTotalEl.textContent = total.toFixed(2);
+            cartSubtotalEl.textContent = subtotal.toFixed(2) + ' جنيه';
+            cartTotalEl.textContent = (subtotal + SHIPIING_FEES).toFixed(2) + ' جنيه';
         }
 
         function renderFavorites(favItems) {
@@ -786,9 +903,30 @@
             }
         }
         
+        function renderOrders(orders) {
+             ordersListContainer.innerHTML = '';
+             if (Object.keys(orders).length === 0) {
+                 ordersListContainer.innerHTML = '<p>لا توجد طلبات سابقة.</p>';
+                 return;
+             }
+             for (const orderId in orders) {
+                 const order = orders[orderId];
+                 const orderEl = document.createElement('div');
+                 orderEl.className = 'list-item';
+                 orderEl.innerHTML = `
+                     <div class="item-info">
+                         <p class="item-name">طلب رقم: ${orderId.substring(0, 5)}</p>
+                         <p class="item-price">الإجمالي: ${order.total.toFixed(2)} جنيه</p>
+                         <small>الحالة: ${order.status}</small>
+                     </div>
+                 `;
+                 ordersListContainer.appendChild(orderEl);
+             }
+        }
+
         function renderCheckoutPage(cartItems) {
             checkoutSummaryContainer.innerHTML = '';
-            let total = 0;
+            let subtotal = 0;
             for (const sku in cartItems) {
                 const product = cartItems[sku];
                 const listItem = document.createElement('div');
@@ -801,16 +939,17 @@
                     </div>
                 `;
                 checkoutSummaryContainer.appendChild(listItem);
-                total += product.price * (product.quantity || 1);
+                subtotal += product.price * (product.quantity || 1);
             }
-            checkoutTotalFinalEl.textContent = total.toFixed(2);
+            checkoutSubtotalEl.textContent = subtotal.toFixed(2) + ' جنيه';
+            checkoutTotalFinalEl.textContent = (subtotal + SHIPIING_FEES).toFixed(2) + ' جنيه';
         }
 
         function createListItem(product, type) {
             const githubUsername = "masyomas";
             const repoName = "almas";
             const branchName = "main";
-            const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+            const imageUrl = `https://raw.githubusercontent.com/${githubusercontent.com/masyomas/almas/main/images/${product['barcode 1']}.jpg`;
             
             const listItem = document.createElement('div');
             listItem.className = 'list-item';
@@ -871,6 +1010,19 @@
                 .then(() => alert("تم حذف المنتج من المفضلة."))
                 .catch(error => alert(`خطأ: ${error.message}`));
         }
+        
+        // --- Payment Method UI Logic ---
+        paymentMethodsRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                instapayQrCode.style.display = 'none';
+                walletQrCode.style.display = 'none';
+                if (e.target.value === 'instapay') {
+                    instapayQrCode.style.display = 'flex';
+                } else if (e.target.value === 'wallet') {
+                    walletQrCode.style.display = 'flex';
+                }
+            });
+        });
 
         // --- Initial Load & Event Listeners ---
         async function loadProducts() {
