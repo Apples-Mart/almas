@@ -407,6 +407,17 @@
         .checkout-btn:hover {
             background-color: #e68a00;
         }
+        .order-details-modal-content {
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+        .modal-body {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -606,9 +617,26 @@
         <div id="admin-tab" class="tab-content">
             <div style="padding: 20px;">
                 <h2>لوحة تحكم الإدارة</h2>
-                <p><strong>طلبات جديدة للمراجعة:</strong></p>
-                <div id="admin-orders-list" class="item-list">
-                    <p>لا توجد طلبات حالية.</p>
+                <div id="admin-main-view">
+                    <p><strong>طلبات جديدة للمراجعة:</strong></p>
+                    <div id="admin-orders-list" class="item-list">
+                        <p>لا توجد طلبات حالية.</p>
+                    </div>
+                    <hr>
+                    <p><strong>العملاء المسجلون:</strong></p>
+                    <div id="admin-users-list" class="item-list">
+                        <p>لا توجد عملاء مسجلين.</p>
+                    </div>
+                </div>
+                <!-- Order details modal -->
+                <div id="admin-order-details-modal" class="modal-overlay" style="z-index: 3000;">
+                    <div class="order-details-modal-content">
+                        <button id="admin-modal-close-btn" class="modal-close">&times;</button>
+                        <div class="modal-body">
+                            <h4>تفاصيل الطلب: <span id="modal-order-id"></span></h4>
+                            <div id="modal-order-content"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -705,6 +733,12 @@
         const changePasswordBtn = document.getElementById('change-password-btn');
         const newPasswordInput = document.getElementById('new-password');
         const passwordChangeMessage = document.getElementById('password-change-message');
+        
+        const adminUsersList = document.getElementById('admin-users-list');
+        const adminOrderDetailsModal = document.getElementById('admin-order-details-modal');
+        const modalOrderId = document.getElementById('modal-order-id');
+        const modalOrderContent = document.getElementById('modal-order-content');
+        const adminModalCloseBtn = document.getElementById('admin-modal-close-btn');
 
         const ADMIN_EMAIL = "admin@store.com";
 
@@ -817,16 +851,8 @@
                 const allUsersRef = ref(database, 'users');
                 onValue(allUsersRef, (snapshot) => {
                     const allUsers = snapshot.val() || {};
-                    let allOrders = {};
-                    for (const userId in allUsers) {
-                         if (allUsers[userId].orders) {
-                             for (const orderId in allUsers[userId].orders) {
-                                 const order = allUsers[userId].orders[orderId];
-                                 allOrders[orderId] = { ...order, userId: userId };
-                             }
-                         }
-                    }
-                    renderAdminOrders(allOrders);
+                    renderAdminOrders(allUsers);
+                    renderAdminUsers(allUsers);
                 });
             }
         }
@@ -1102,29 +1128,54 @@
              }
         }
         
-        function renderAdminOrders(allOrders) {
+        function renderAdminUsers(users) {
+            adminUsersList.innerHTML = '';
+            if (Object.keys(users).length === 0) {
+                 adminUsersList.innerHTML = '<p>لا توجد عملاء مسجلين.</p>';
+                 return;
+            }
+            for (const userId in users) {
+                 const user = users[userId];
+                 if (user.profile) {
+                     const userEl = document.createElement('div');
+                     userEl.className = 'list-item';
+                     userEl.innerHTML = `
+                         <div class="item-info">
+                             <p class="item-name"><strong>الاسم:</strong> ${user.profile.name}</p>
+                             <p><strong>البريد:</strong> ${user.profile.email || "غير متاح"}</p>
+                             <p><strong>الهاتف:</strong> ${user.profile.phone || "غير متاح"}</p>
+                         </div>
+                     `;
+                     adminUsersList.appendChild(userEl);
+                 }
+            }
+        }
+
+        function renderAdminOrders(allUsers) {
             adminOrdersList.innerHTML = '';
             let hasOrders = false;
-            for (const userId in allOrders) {
-                for (const orderId in allOrders[userId].orders) {
-                    const order = allOrders[userId].orders[orderId];
-                    hasOrders = true;
-                    const orderEl = document.createElement('div');
-                    orderEl.className = 'admin-order-card';
-                    orderEl.innerHTML = `
-                        <h4>طلب رقم: ${orderId.substring(0, 5)}</h4>
-                        <p><strong>العميل:</strong> ${order.shippingInfo.name}</p>
-                        <p><strong>الحالة:</strong> ${order.status}</p>
-                        <p><strong>الإجمالي:</strong> ${order.total.toFixed(2)} جنيه</p>
-                        <p><strong>تفاصيل:</strong> <button class="view-order-details-btn" data-user-id="${userId}" data-order-id="${orderId}">عرض</button></p>
-                        <div class="admin-order-actions">
-                             <button style="background-color: #007bff;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم تأكيد الدفع')">تأكيد الدفع</button>
-                             <button style="background-color: #28a745;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التجهيز')">تجهيز الشحنة</button>
-                             <button style="background-color: #ffc107;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التوصيل')">قيد التوصيل</button>
-                             <button style="background-color: #dc3545;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم التسليم')">تم التسليم</button>
-                        </div>
-                    `;
-                    adminOrdersList.appendChild(orderEl);
+            for (const userId in allUsers) {
+                const user = allUsers[userId];
+                if (user.orders) {
+                    for (const orderId in user.orders) {
+                        const order = user.orders[orderId];
+                        hasOrders = true;
+                        const orderEl = document.createElement('div');
+                        orderEl.className = 'admin-order-card';
+                        orderEl.innerHTML = `
+                            <h4>طلب رقم: ${orderId.substring(0, 5)}</h4>
+                            <p><strong>العميل:</strong> ${order.shippingInfo.name}</p>
+                            <p><strong>الحالة:</strong> ${order.status}</p>
+                            <p><strong>الإجمالي:</strong> ${order.total.toFixed(2)} جنيه</p>
+                            <div class="admin-order-actions">
+                                 <button style="background-color: #007bff;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم تأكيد الدفع')">تأكيد الدفع</button>
+                                 <button style="background-color: #28a745;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التجهيز')">تجهيز الشحنة</button>
+                                 <button style="background-color: #ffc107;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التوصيل')">قيد التوصيل</button>
+                                 <button style="background-color: #dc3545;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم التسليم')">تم التسليم</button>
+                            </div>
+                        `;
+                        adminOrdersList.appendChild(orderEl);
+                    }
                 }
             }
             if (!hasOrders) {
