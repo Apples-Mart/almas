@@ -1063,6 +1063,21 @@
             });
         }
         
+        function createCategorySection(title, products) {
+            const sectionEl = document.createElement('div');
+            sectionEl.className = 'category-section';
+            const titleEl = document.createElement('h2');
+            titleEl.textContent = title;
+            sectionEl.appendChild(titleEl);
+            const gridEl = document.createElement('div');
+            gridEl.className = 'category-grid';
+            products.sort(() => 0.5 - Math.random()).slice(0, 10).forEach(product => {
+                gridEl.appendChild(createProductCard(product));
+            });
+            sectionEl.appendChild(gridEl);
+            return sectionEl;
+        }
+
         function createProductCard(product) {
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -1071,8 +1086,23 @@
             const repoName = "almas";
             const branchName = "main";
             const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+            
+            const cardImageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+
+            const imageExists = new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = cardImageUrl;
+            });
+            
+            imageExists.then(exists => {
+                const finalImageUrl = exists ? cardImageUrl : `https://via.placeholder.com/200x150.png?text=${encodeURIComponent(product.name)}`;
+                card.querySelector('.product-image').src = finalImageUrl;
+            });
+
             card.innerHTML = `
-                <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x150.png?text=No+Image';">
+                <img src="https://via.placeholder.com/200x150.png?text=Loading..." alt="${product.name}" class="product-image">
                 <div class="product-info">
                     <p class="product-name">${product.name}</p>
                     <p class="product-price">${product.price} جنيه</p>
