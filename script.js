@@ -1,13 +1,14 @@
 // =================================================
-// 1. إعدادات FIREBASE (باستخدام بياناتك)
+// 1. استيراد دوال FIREBASE V9
 // =================================================
-// استخدام الدوال التي تم تحميلها في ملف HTML
-const { initializeApp } = window.firebase;
-const { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = window.firebase;
-const { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, doc, updateDoc, orderBy } = window.firebase;
-const { getStorage, ref, uploadBytesResumable, getDownloadURL } = window.firebase;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, doc, updateDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-storage.js";
 
-// بيانات الإعداد الخاصة بك
+// =================================================
+// 2. إعدادات FIREBASE (باستخدام بياناتك)
+// =================================================
 const firebaseConfig = {
     apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
     authDomain: "almas-store-a51eb.firebaseapp.com",
@@ -25,9 +26,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-
 // =================================================
-// 2. الوصول لعناصر الصفحة (DOM Elements) - لا تغيير هنا
+// 3. الوصول لعناصر الصفحة (DOM Elements)
 // =================================================
 const pages = {
     auth: document.getElementById('auth-page'),
@@ -50,196 +50,68 @@ const orderStatusDiv = document.getElementById('order-status');
 const orderHistoryUl = document.getElementById('order-history');
 
 // =================================================
-// 3. متغيرات الحالة (State Variables) - لا تغيير هنا
+// 4. متغيرات الحالة (State Variables)
 // =================================================
 let productsData = [];
 let cart = [];
 let currentUser = null;
 
 // =================================================
-// 4. إدارة العرض والتنقل بين الصفحات - لا تغيير هنا
+// 5. دوال مساعدة
 // =================================================
 function showPage(pageName) {
     Object.values(pages).forEach(page => page.style.display = 'none');
     pages[pageName].style.display = 'block';
 }
-navLinks.products.addEventListener('click', () => showPage('products'));
-navLinks.cart.addEventListener('click', () => showPage('cart'));
-navLinks.profile.addEventListener('click', () => showPage('profile'));
-navLinks.logout.addEventListener('click', () => signOut(auth));
 
+function translateStatus(status) {
+    const statuses = {
+        pending: 'قيد المراجعة',
+        preparing: 'قيد التجهيز',
+        shipped: 'تم الشحن',
+        delivered: 'تم التوصيل',
+        payment_review: 'قيد مراجعة الدفع',
+        confirmed: 'مؤكد'
+    };
+    return statuses[status] || status;
+}
 
 // =================================================
-// 5. إدارة المصادقة (Authentication) - تم التحديث
+// 6. إدارة المصادقة (Authentication)
 // =================================================
 onAuthStateChanged(auth, user => {
     if (user) {
         currentUser = user;
         userEmailSpan.textContent = user.email;
         navLinks.logout.style.display = 'inline';
+        navLinks.profile.style.display = 'inline';
+        navLinks.cart.style.display = 'inline';
         loadUserProfile();
         showPage('products');
     } else {
         currentUser = null;
         navLinks.logout.style.display = 'none';
+        navLinks.profile.style.display = 'none';
+        navLinks.cart.style.display = 'none';
         showPage('auth');
     }
 });
 
-document.getElementById('show-signup').addEventListener('click', () => { /* ... لا تغيير هنا ... */ });
-document.getElementById('show-login').addEventListener('click', () => { /* ... لا تغيير هنا ... */ });
-
-document.getElementById('signup-btn').addEventListener('click', () => {
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
-    createUserWithEmailAndPassword(auth, email, password)
-        .catch(error => alert(error.message));
-});
-
-document.getElementById('login-btn').addEventListener('click', () => {
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    signInWithEmailAndPassword(auth, email, password)
-        .catch(error => alert(error.message));
-});
-
 // =================================================
-// 6. تحميل وعرض المنتجات - لا تغيير هنا
+// 7. تحميل وعرض المنتجات
 // =================================================
-async function fetchProducts() { /* ... لا تغيير هنا ... */ }
-function renderProducts() { /* ... لا تغيير هنا ... */ }
-
-
-// =================================================
-// 7. إدارة سلة المشتريات - لا تغيير هنا
-// =================================================
-function findProductById(sku) { /* ... لا تغيير هنا ... */ }
-function addToCart(productSku) { /* ... لا تغيير هنا ... */ }
-function updateCart() { /* ... لا تغيير هنا ... */ }
-
-
-// =================================================
-// 8. إتمام الطلب وإرساله إلى Firebase - تم التحديث
-// =================================================
-document.getElementById('checkout-btn').addEventListener('click', async () => {
-    if (cart.length === 0) return alert('سلتك فارغة!');
-    if (!currentUser) {
-        alert('الرجاء تسجيل الدخول أولاً لإتمام الطلب.');
-        return showPage('auth');
-    }
-    const order = {
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
-        items: cart,
-        total: cart.reduce((sum, item) => sum + item.price, 0),
-        status: 'pending',
-        createdAt: new Date()
-    };
-    try {
-        const docRef = await addDoc(collection(db, "orders"), order);
-        alert(`تم إرسال طلبك بنجاح! رقم الطلب: ${docRef.id}`);
-        cart = [];
-        updateCart();
-        showPage('profile');
-        loadUserProfile();
-    } catch (error) {
-        console.error("Error adding document: ", error);
-    }
-});
-
-// =================================================
-// 9. صفحة المستخدم الشخصية - تم التحديث
-// =================================================
-function loadUserProfile() {
-    if (!currentUser) return;
-    loadOrderHistory();
-    listenForOrderUpdates();
-}
-
-async function loadOrderHistory() {
-    orderHistoryUl.innerHTML = '';
-    const q = query(collection(db, "orders"), where("userId", "==", currentUser.uid), orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        const order = doc.data();
-        const li = document.createElement('li');
-        li.textContent = `طلب بتاريخ ${order.createdAt.toDate().toLocaleDateString()} - الإجمالي: ${order.total} جنيه - الحالة: ${translateStatus(order.status)}`;
-        orderHistoryUl.appendChild(li);
-    });
-}
-
-function listenForOrderUpdates() {
-    orderStatusDiv.innerHTML = '';
-    const q = query(collection(db, "orders"), where("userId", "==", currentUser.uid), where('status', 'in', ['pending', 'preparing']));
-    onSnapshot(q, (snapshot) => {
-        orderStatusDiv.innerHTML = '';
-        snapshot.forEach((doc) => {
-            // ... نفس منطق عرض الإشعارات من الكود السابق ...
-        });
-    });
-}
-
-function translateStatus(status) { /* ... لا تغيير هنا ... */ }
-function createPaymentForm(orderId) { /* ... لا تغيير هنا ... */ }
-
-function updatePaymentMethod(orderId, method) {
-    const uploadDiv = document.getElementById(`payment-upload-${orderId}`);
-    if (method === 'bank_transfer') {
-        uploadDiv.style.display = 'block';
-    } else {
-        uploadDiv.style.display = 'none';
-    }
-    if (method === 'cash_on_delivery') {
-        const orderRef = doc(db, "orders", orderId);
-        updateDoc(orderRef, { paymentMethod: method, status: 'confirmed' })
-            .then(() => alert('تم اختيار الدفع عند الاستلام.'));
-    }
-}
-
-function uploadReceipt(orderId) {
-    const file = document.getElementById(`receipt-file-${orderId}`).files[0];
-    if (!file) return alert('الرجاء اختيار ملف.');
-
-    const filePath = `receipts/${orderId}/${file.name}`;
-    const storageRef = ref(storage, filePath);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on('state_changed',
-        (snapshot) => { /* يمكنك عرض نسبة التقدم هنا */ },
-        (error) => { console.error(error); alert('فشل رفع الصورة.'); },
-        () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                const orderRef = doc(db, "orders", orderId);
-                updateDoc(orderRef, {
-                    paymentReceiptUrl: downloadURL,
-                    status: 'payment_review'
-                }).then(() => alert('تم رفع الإيصال بنجاح!'));
-            });
-        }
-    );
-}
-
-// =================================================
-// 10. بدء تشغيل التطبيق
-// =================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // الكود سيعمل تلقائياً بعد تحميل المكتبات
-});
-
-
-// قمت بإزالة بعض الدوال المكررة التي لا تغيير فيها للاختصار
-// يمكنك نسخها من الكود السابق إذا لزم الأمر
-// مثل fetchProducts, renderProducts, findProductById, addToCart, etc.
-// سأقوم بإضافتها هنا كاملة للتأكيد
 async function fetchProducts() {
     try {
         const response = await fetch('products.json');
+        if (!response.ok) throw new Error('Network response was not ok');
         productsData = await response.json();
         renderProducts();
     } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('فشل في تحميل المنتجات:', error);
+        productListDiv.innerHTML = '<p>عفواً، حدث خطأ أثناء تحميل المنتجات.</p>';
     }
 }
+
 function renderProducts() {
     productListDiv.innerHTML = '';
     productsData.forEach(item => {
@@ -248,17 +120,22 @@ function renderProducts() {
             productCard.className = 'product-card';
             productCard.innerHTML = `
                 <h3>${item.name}</h3>
-                <p>الفئة: ${item.category}</p>
+                <p>الفئة: ${item.category || 'غير محدد'}</p>
                 <p>السعر: ${item.price} جنيه</p>
-                <button onclick="addToCart('${item.sku}')">أضف إلى السلة</button>
+                <button class="add-to-cart-btn" data-sku="${item.sku}">أضف إلى السلة</button>
             `;
             productListDiv.appendChild(productCard);
         }
     });
 }
+
+// =================================================
+// 8. إدارة سلة المشتريات
+// =================================================
 function findProductById(sku) {
     return productsData.find(item => item.sku === sku);
 }
+
 function addToCart(productSku) {
     const product = findProductById(productSku);
     if (product) {
@@ -267,6 +144,7 @@ function addToCart(productSku) {
         alert(`${product.name} تمت إضافته إلى السلة!`);
     }
 }
+
 function updateCart() {
     cartItemsDiv.innerHTML = '';
     let total = 0;
@@ -284,39 +162,77 @@ function updateCart() {
     cartCountSpan.textContent = cart.length;
     cartTotalSpan.textContent = total.toFixed(2);
 }
-function translateStatus(status) {
-    const statuses = {
-        pending: 'قيد المراجعة',
-        preparing: 'قيد التجهيز',
-        shipped: 'تم الشحن',
-        delivered: 'تم التوصيل',
-        payment_review: 'قيد مراجعة الدفع',
-        confirmed: 'مؤكد'
-    };
-    return statuses[status] || status;
+
+// =================================================
+// 9. صفحة المستخدم الشخصية
+// =================================================
+function loadUserProfile() {
+    if (!currentUser) return;
+    loadOrderHistory();
+    listenForOrderUpdates();
 }
-function createPaymentForm(orderId) {
-    return `
-        <div class="payment-form">
-            <p>اختر طريقة الدفع:</p>
-            <select onchange="updatePaymentMethod('${orderId}', this.value)">
-                <option value="">اختر...</option>
-                <option value="cash_on_delivery">الدفع عند الاستلام</option>
-                <option value="bank_transfer">تحويل بنكي</option>
-            </select>
-            <div id="payment-upload-${orderId}" style="display:none; margin-top:10px;">
-                <p>يرجى تحويل المبلغ المطلوب وإرفاق صورة الوصل.</p>
-                <input type="file" id="receipt-file-${orderId}">
-                <button onclick="uploadReceipt('${orderId}')">تأكيد الدفع</button>
-            </div>
-        </div>
-    `;
+
+async function loadOrderHistory() {
+    orderHistoryUl.innerHTML = '<li>جار التحميل...</li>';
+    try {
+        const q = query(collection(db, "orders"), where("userId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        orderHistoryUl.innerHTML = '';
+        if (querySnapshot.empty) {
+            orderHistoryUl.innerHTML = '<li>لا يوجد طلبات سابقة.</li>';
+        }
+        querySnapshot.forEach((doc) => {
+            const order = doc.data();
+            const li = document.createElement('li');
+            li.textContent = `طلب بتاريخ ${order.createdAt.toDate().toLocaleDateString()} - الإجمالي: ${order.total} جنيه - الحالة: ${translateStatus(order.status)}`;
+            orderHistoryUl.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Error loading order history: ", error);
+        orderHistoryUl.innerHTML = '<li>حدث خطأ في تحميل الطلبات.</li>';
+    }
 }
-document.addEventListener('DOMContentLoaded', () => {
-    fetchProducts();
-    updateCart();
-    // Don't call showPage here, onAuthStateChanged will handle it.
-});
+
+function listenForOrderUpdates() {
+    orderStatusDiv.innerHTML = '';
+    const q = query(collection(db, "orders"), where("userId", "==", currentUser.uid), where('status', 'in', ['pending', 'preparing']));
+    onSnapshot(q, (snapshot) => {
+        orderStatusDiv.innerHTML = '';
+        if (snapshot.empty) {
+            orderStatusDiv.innerHTML = '<p>لا توجد طلبات حالية قيد التجهيز.</p>';
+        }
+        snapshot.forEach((doc) => {
+            const order = doc.data();
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+
+            let message = `طلبك رقم ${doc.id} قيد المراجعة.`;
+            if (order.status === 'preparing') {
+                message = `يتم تجهيز طلبك رقم ${doc.id}.`;
+                if (!order.paymentReceiptUrl) {
+                    notification.innerHTML += createPaymentForm(doc.id);
+                }
+            }
+            notification.prepend(document.createTextNode(message));
+            orderStatusDiv.appendChild(notification);
+        });
+    });
+}
+
+function createPaymentForm(orderId) { /* ... نفس الكود السابق ... */ }
+async function updatePaymentMethod(orderId, method) { /* ... نفس الكود السابق ... */ }
+function uploadReceipt(orderId) { /* ... نفس الكود السابق ... */ }
+
+// =================================================
+// 10. ربط الأحداث (Event Listeners)
+// =================================================
+// التنقل
+navLinks.products.addEventListener('click', (e) => { e.preventDefault(); showPage('products'); });
+navLinks.cart.addEventListener('click', (e) => { e.preventDefault(); showPage('cart'); });
+navLinks.profile.addEventListener('click', (e) => { e.preventDefault(); showPage('profile'); });
+navLinks.logout.addEventListener('click', () => signOut(auth));
+
+// المصادقة
 document.getElementById('show-signup').addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('login-form').style.display = 'none';
@@ -327,3 +243,124 @@ document.getElementById('show-login').addEventListener('click', (e) => {
     document.getElementById('login-form').style.display = 'block';
     document.getElementById('signup-form').style.display = 'none';
 });
+document.getElementById('signup-btn').addEventListener('click', () => {
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    createUserWithEmailAndPassword(auth, email, password)
+        .catch(error => alert(error.message));
+});
+document.getElementById('login-btn').addEventListener('click', () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    signInWithEmailAndPassword(auth, email, password)
+        .catch(error => alert(error.message));
+});
+
+// إضافة للسلة
+productListDiv.addEventListener('click', (e) => {
+    if (e.target.classList.contains('add-to-cart-btn')) {
+        const sku = e.target.dataset.sku;
+        addToCart(sku);
+    }
+});
+
+// إتمام الطلب
+document.getElementById('checkout-btn').addEventListener('click', async () => {
+    if (cart.length === 0) return alert('سلتك فارغة!');
+    if (!currentUser) return alert('الرجاء تسجيل الدخول أولاً.');
+
+    const order = {
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        items: cart,
+        total: cart.reduce((sum, item) => sum + parseFloat(item.price), 0),
+        status: 'pending',
+        createdAt: serverTimestamp() // استخدام وقت الخادم لضمان الدقة
+    };
+    try {
+        const docRef = await addDoc(collection(db, "orders"), order);
+        alert(`تم إرسال طلبك بنجاح! رقم الطلب: ${docRef.id}`);
+        cart = [];
+        updateCart();
+        showPage('profile');
+    } catch (error) {
+        console.error("خطأ في إرسال الطلب: ", error);
+        alert("حدث خطأ أثناء إرسال الطلب.");
+    }
+});
+
+// =================================================
+// 11. بدء تشغيل التطبيق
+// =================================================
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
+    updateCart();
+    // لا تقم باستدعاء showPage هنا، onAuthStateChanged ستقوم بذلك.
+});
+
+// الدوال التي لم تتغير (للتأكيد فقط)
+function createPaymentForm(orderId) {
+    return `
+        <div class="payment-form">
+            <p>اختر طريقة الدفع:</p>
+            <select id="payment-method-${orderId}">
+                <option value="">اختر...</option>
+                <option value="cash_on_delivery">الدفع عند الاستلام</option>
+                <option value="bank_transfer">تحويل بنكي</option>
+            </select>
+            <div id="payment-upload-${orderId}" style="display:none; margin-top:10px;">
+                <p>يرجى إرفاق صورة الوصل.</p>
+                <input type="file" id="receipt-file-${orderId}">
+                <button id="upload-btn-${orderId}">تأكيد الدفع</button>
+            </div>
+        </div>
+    `;
+}
+// يجب ربط الأحداث لهذه العناصر بعد إنشائها
+document.body.addEventListener('change', async (e) => {
+    if(e.target.id.startsWith('payment-method-')) {
+        const orderId = e.target.id.replace('payment-method-', '');
+        const method = e.target.value;
+        const uploadDiv = document.getElementById(`payment-upload-${orderId}`);
+        if (method === 'bank_transfer') {
+            uploadDiv.style.display = 'block';
+        } else {
+            uploadDiv.style.display = 'none';
+        }
+        if (method === 'cash_on_delivery') {
+            const orderRef = doc(db, "orders", orderId);
+            await updateDoc(orderRef, { paymentMethod: method, status: 'confirmed' });
+            alert('تم اختيار الدفع عند الاستلام.');
+        }
+    }
+});
+document.body.addEventListener('click', (e) => {
+    if(e.target.id.startsWith('upload-btn-')) {
+        const orderId = e.target.id.replace('upload-btn-', '');
+        uploadReceipt(orderId);
+    }
+});
+function uploadReceipt(orderId) {
+    const fileInput = document.getElementById(`receipt-file-${orderId}`);
+    const file = fileInput.files[0];
+    if (!file) { return alert('الرجاء اختيار ملف الإيصال.'); }
+    
+    const filePath = `receipts/${orderId}/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, filePath);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on('state_changed',
+        (snapshot) => { console.log(`Upload is ${snapshot.bytesTransferred / snapshot.totalBytes * 100}% done`); },
+        (error) => { console.error(error); alert('فشل رفع الصورة.'); },
+        () => {
+            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+                const orderRef = doc(db, "orders", orderId);
+                await updateDoc(orderRef, {
+                    paymentReceiptUrl: downloadURL,
+                    status: 'payment_review'
+                });
+                alert('تم رفع الإيصال بنجاح!');
+            });
+        }
+    );
+}
