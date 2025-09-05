@@ -84,7 +84,7 @@
         .toolbar input, .toolbar select {
             flex-grow: 1;
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 1rem;
         }
@@ -418,6 +418,21 @@
         .modal-body {
             text-align: right;
         }
+        .user-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .active-user-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -741,6 +756,7 @@
         const adminModalCloseBtn = document.getElementById('admin-modal-close-btn');
 
         const ADMIN_EMAIL = "admin@store.com";
+        const ACTIVE_USER_TIMEOUT = 3600000; // 1 hour in milliseconds
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
@@ -772,6 +788,19 @@
                 showTab(targetId);
             });
         });
+        
+        adminOrdersList.addEventListener('click', (e) => {
+            const viewButton = e.target.closest('.view-order-details-btn');
+            if (viewButton) {
+                const userId = viewButton.dataset.userId;
+                const orderId = viewButton.dataset.orderId;
+                showAdminOrderDetails(userId, orderId);
+            }
+        });
+        
+        adminModalCloseBtn.addEventListener('click', () => {
+            adminOrderDetailsModal.style.display = 'none';
+        });
 
         // --- Firebase Auth & DB Logic ---
         let currentUserId = null;
@@ -794,10 +823,15 @@
                 showTab('home-tab'); 
                 setupDatabaseListeners();
                 
+                // Load user profile
                 const profileRef = ref(database, `users/${currentUserId}/profile`);
                 onValue(profileRef, (snapshot) => {
                     currentUserProfile = snapshot.val();
                 });
+                
+                // Update user last active time
+                const lastActiveRef = ref(database, `users/${currentUserId}/lastActive`);
+                set(lastActiveRef, Date.now());
             } else {
                 currentUserId = null;
                 currentUserProfile = null;
@@ -1137,14 +1171,17 @@
             for (const userId in users) {
                  const user = users[userId];
                  if (user.profile) {
+                     const lastActive = user.lastActive || 0;
+                     const isActive = (Date.now() - lastActive) < ACTIVE_USER_TIMEOUT;
                      const userEl = document.createElement('div');
-                     userEl.className = 'list-item';
+                     userEl.className = 'user-list-item';
                      userEl.innerHTML = `
-                         <div class="item-info">
-                             <p class="item-name"><strong>الاسم:</strong> ${user.profile.name}</p>
+                         <div>
+                             <p><strong>الاسم:</strong> ${user.profile.name}</p>
                              <p><strong>البريد:</strong> ${user.profile.email || "غير متاح"}</p>
                              <p><strong>الهاتف:</strong> ${user.profile.phone || "غير متاح"}</p>
                          </div>
+                         ${isActive ? '<span class="active-user-dot"></span>' : ''}
                      `;
                      adminUsersList.appendChild(userEl);
                  }
@@ -1165,7 +1202,7 @@
                         orderEl.innerHTML = `
                             <h4>طلب رقم: ${orderId.substring(0, 5)}</h4>
                             <p><strong>العميل:</strong> ${order.shippingInfo.name}</p>
-                            <p><strong>الحالة:</strong> ${order.status}</p>
+                            <p><strong>الحالة:</strong> <span id="order-status-${orderId}">${order.status}</span></p>
                             <p><strong>الإجمالي:</strong> ${order.total.toFixed(2)} جنيه</p>
                             <div class="admin-order-actions">
                                  <button style="background-color: #007bff;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم تأكيد الدفع')">تأكيد الدفع</button>
@@ -1185,7 +1222,7 @@
         
         async function updateOrderStatus(userId, orderId, newStatus) {
             const orderRef = ref(database, `users/${userId}/orders/${orderId}`);
-            await set(orderRef, { status: newStatus }, { merge: true })
+            await set(orderRef, { status: newStatus })
                  .then(() => alert(`تم تحديث حالة الطلب ${orderId.substring(0, 5)} إلى: ${newStatus}`))
                  .catch(error => alert(`خطأ: ${error.message}`));
         }
