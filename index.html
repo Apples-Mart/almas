@@ -535,7 +535,7 @@
                     <div class="form-group">
                         <input type="text" id="shipping-city" placeholder="المدينة / المنطقة" required>
                     </div>
-
+                    
                     <h3>طريقة الدفع</h3>
                     <div class="payment-option">
                         <label>
@@ -706,7 +706,6 @@
         const newPasswordInput = document.getElementById('new-password');
         const passwordChangeMessage = document.getElementById('password-change-message');
 
-        // Admin Secret Key - يمكنك تغييرها
         const ADMIN_EMAIL = "admin@store.com";
 
         // --- Tab Switching Logic ---
@@ -761,7 +760,6 @@
                 showTab('home-tab'); 
                 setupDatabaseListeners();
                 
-                // Load user profile
                 const profileRef = ref(database, `users/${currentUserId}/profile`);
                 onValue(profileRef, (snapshot) => {
                     currentUserProfile = snapshot.val();
@@ -790,7 +788,6 @@
         function setupDatabaseListeners() {
             if (!currentUserId) return;
 
-            // Listen for Cart changes
             const cartRef = ref(database, `users/${currentUserId}/cart`);
             onValue(cartRef, (snapshot) => {
                 const cartItems = snapshot.val() || {};
@@ -804,32 +801,30 @@
                 renderCheckoutPage(cartItems);
             });
 
-            // Listen for Favorites changes
             const favsRef = ref(database, `users/${currentUserId}/favorites`);
             onValue(favsRef, (snapshot) => {
                 const favItems = snapshot.val() || {};
                 renderFavorites(favItems);
             });
             
-            // Listen for Orders changes
             const ordersRef = ref(database, `users/${currentUserId}/orders`);
             onValue(ordersRef, (snapshot) => {
                 const orders = snapshot.val() || {};
                 renderOrders(orders);
             });
 
-            // Listen for ALL orders for admin page
             if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
-                const allOrdersRef = ref(database, 'users');
-                onValue(allOrdersRef, (snapshot) => {
+                const allUsersRef = ref(database, 'users');
+                onValue(allUsersRef, (snapshot) => {
                     const allUsers = snapshot.val() || {};
                     let allOrders = {};
                     for (const userId in allUsers) {
-                        if (allUsers[userId].orders) {
-                            for (const orderId in allUsers[userId].orders) {
-                                allOrders[orderId] = { ...allUsers[userId].orders[orderId], userId: userId };
-                            }
-                        }
+                         if (allUsers[userId].orders) {
+                             for (const orderId in allUsers[userId].orders) {
+                                 const order = allUsers[userId].orders[orderId];
+                                 allOrders[orderId] = { ...order, userId: userId };
+                             }
+                         }
                     }
                     renderAdminOrders(allOrders);
                 });
@@ -932,7 +927,6 @@
         navLogout.addEventListener('click', handleLogout);
         changePasswordBtn.addEventListener('click', handlePasswordChange);
 
-        // --- Modal & Product Actions ---
         async function addToFavorites(sku) {
             if (!currentUserId) {
                 alert("الرجاء تسجيل الدخول أولاً لإضافة منتجات إلى المفضلة.");
@@ -989,7 +983,6 @@
                 document.getElementById('shipping-name').value = currentUserProfile.name || '';
                 document.getElementById('shipping-phone').value = currentUserProfile.phone || '';
                 document.getElementById('shipping-address').value = currentUserProfile.address || '';
-                document.getElementById('shipping-city').value = currentUserProfile.city || '';
             }
         }
 
@@ -1054,7 +1047,6 @@
             return calculateSubtotal(items) + SHIPIING_FEES;
         }
 
-        // --- Rendering Functions ---
         function renderCart(cartItems) {
             cartItemsContainer.innerHTML = '';
             let subtotal = 0;
@@ -1199,7 +1191,6 @@
                 </div>
             `;
             
-            // Image loading logic
             const imgEl = listItem.querySelector('.item-image');
             const realImg = new Image();
             realImg.onload = () => {
@@ -1210,7 +1201,6 @@
             };
             realImg.src = imageUrl;
 
-            // Event listeners
             listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
                 const sku = e.target.dataset.sku;
                 const itemType = e.target.dataset.type;
@@ -1247,7 +1237,6 @@
                 .catch(error => alert(`خطأ: ${error.message}`));
         }
         
-        // --- Payment Method UI Logic ---
         paymentMethodsRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
                 instapayQrCode.style.display = 'none';
@@ -1260,7 +1249,6 @@
             });
         });
 
-        // --- Initial Load & Event Listeners ---
         async function loadProducts() {
             try {
                 const response = await fetch('products.json');
