@@ -295,12 +295,26 @@
             color: #B12704;
             margin: 5px 0 0;
         }
-        .item-list .remove-btn {
+        .item-list .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .item-list .item-actions .remove-btn, .item-list .item-actions .add-to-cart-btn {
             background: none;
             border: none;
-            color: #d9534f;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
+        }
+        .item-list .item-actions .remove-btn {
+            color: #d9534f;
+        }
+        .item-list .item-actions .add-to-cart-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
         }
 
         /* --- Checkout Section --- */
@@ -618,17 +632,19 @@
                 return;
             }
             const cartRef = ref(database, `users/${currentUserId}/cart`);
-            const cartSnapshot = await get(cartRef); // get() is not in Firebase 9.10, so this needs to be onValue
-            const cartItems = cartSnapshot.val();
-
-            if (!cartItems) {
-                alert("سلة التسوق فارغة.");
-                return;
-            }
-
-            // A simplified "purchase" - clear the cart
-            await set(cartRef, null);
-            alert("تم إتمام عملية الشراء بنجاح. شكراً لك!");
+            // Check if cart is empty before clearing
+            onValue(cartRef, (snapshot) => {
+                 if (snapshot.exists()) {
+                    set(cartRef, null)
+                        .then(() => {
+                            alert("تم إتمام عملية الشراء بنجاح. شكراً لك!");
+                            showTab('home-tab');
+                        })
+                        .catch(error => alert(`خطأ: ${error.message}`));
+                 } else {
+                    alert("سلة التسوق فارغة.");
+                 }
+            }, {onlyOnce: true});
         }
 
         // --- Rendering Functions ---
@@ -674,15 +690,27 @@
             const listItem = document.createElement('div');
             listItem.className = 'list-item';
             
+            let actionButtons = `
+                <button class="remove-btn" data-sku="${product.sku}" data-type="${type}">&times;</button>
+            `;
+            if (type === 'favorite') {
+                actionButtons += `
+                    <button class="add-to-cart-btn" data-sku="${product.sku}">أضف للسلة</button>
+                `;
+            }
+
             listItem.innerHTML = `
                 <img src="${imageUrl}" alt="${product.name}" class="item-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/60x60.png?text=No+Image';">
                 <div class="item-info">
                     <p class="item-name">${product.name}</p>
                     <p class="item-price">${product.price} جنيه</p>
                 </div>
-                <button class="remove-btn" data-sku="${product.sku}" data-type="${type}">&times;</button>
+                <div class="item-actions">
+                    ${actionButtons}
+                </div>
             `;
             
+            // Event listeners
             listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
                 const sku = e.target.dataset.sku;
                 const itemType = e.target.dataset.type;
@@ -692,6 +720,13 @@
                     removeFromFavorites(sku);
                 }
             });
+
+            if (type === 'favorite') {
+                listItem.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
+                    const sku = e.target.dataset.sku;
+                    addToCart(sku);
+                });
+            }
 
             return listItem;
         }
