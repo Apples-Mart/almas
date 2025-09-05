@@ -361,6 +361,7 @@
             <a id="nav-home" class="tab-link active">الرئيسية</a>
             <a id="nav-auth" class="tab-link">تسجيل الدخول</a>
             <a id="nav-cart" class="tab-link">السلة (<span id="cart-count">0</span>)</a>
+            <a id="nav-checkout" class="tab-link" style="display: none;">الدفع</a>
             <a id="nav-profile" class="tab-link">صفحتي الشخصية</a>
         </nav>
     </header>
@@ -407,7 +408,7 @@
                 <div id="checkout-summary" class="item-list">
                     </div>
                 <div class="checkout-section">
-                    <p class="checkout-total">المجموع الكلي: <span id="checkout-total">0</span> جنيه</p>
+                    <p class="checkout-total">المجموع الكلي: <span id="checkout-total-final">0</span> جنيه</p>
                 </div>
                 <div class="form-container" style="max-width: 100%;">
                     <h3>معلومات الشحن</h3>
@@ -502,6 +503,7 @@
         const authMessage = document.getElementById('auth-message');
         const navLogin = document.getElementById('nav-auth');
         const navCart = document.getElementById('nav-cart');
+        const navCheckout = document.getElementById('nav-checkout'); // New element
         const navProfile = document.getElementById('nav-profile');
         const navLogout = document.createElement('a');
         navLogout.id = 'nav-logout';
@@ -514,7 +516,7 @@
         const cartTotalEl = document.getElementById('cart-total');
         const gotoCheckoutBtn = document.getElementById('goto-checkout-btn');
         const checkoutSummaryContainer = document.getElementById('checkout-summary');
-        const checkoutTotalEl = document.getElementById('checkout-total');
+        const checkoutTotalFinalEl = document.getElementById('checkout-total-final'); // Renamed ID
         const placeOrderBtn = document.getElementById('place-order-btn');
 
         // --- Tab Switching Logic ---
@@ -522,7 +524,11 @@
             tabContents.forEach(content => content.classList.remove('active'));
             tabLinks.forEach(link => link.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
-            document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`).classList.add('active');
+            
+            const correspondingNavLink = document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`);
+            if (correspondingNavLink) {
+                 correspondingNavLink.classList.add('active');
+            }
         }
         
         tabLinks.forEach(link => {
@@ -530,6 +536,11 @@
                 const targetId = e.target.id.replace('nav-', '') + '-tab';
                 if (targetId === 'logout-tab') {
                     handleLogout();
+                    return;
+                }
+                if (targetId === 'checkout-tab' && Object.keys(currentCart).length === 0) {
+                    alert("سلة التسوق فارغة، لا يمكن إتمام الشراء.");
+                    showTab('cart-tab');
                     return;
                 }
                 showTab(targetId);
@@ -544,6 +555,7 @@
                 document.getElementById('profile-email').textContent = user.email;
                 navLogin.style.display = 'none';
                 navCart.style.display = 'block';
+                navCheckout.style.display = 'block'; // New
                 navProfile.style.display = 'block';
                 navLogout.style.display = 'block';
                 showTab('home-tab'); 
@@ -552,6 +564,7 @@
                 currentUserId = null;
                 navLogin.style.display = 'block';
                 navCart.style.display = 'none';
+                navCheckout.style.display = 'none'; // New
                 navProfile.style.display = 'none';
                 navLogout.style.display = 'none';
                 showTab('auth-tab');
@@ -574,6 +587,7 @@
                 const cartItems = snapshot.val() || {};
                 currentCart = cartItems; // Save a copy of the cart
                 renderCart(cartItems);
+                renderCheckoutPage(cartItems); // Update checkout page as well
             });
 
             // Listen for Favorites changes
@@ -679,7 +693,6 @@
                  alert("سلة التسوق فارغة، لا يمكن إتمام الشراء.");
                  return;
              }
-             renderCheckoutPage(currentCart);
              showTab('checkout-tab');
         });
 
@@ -790,7 +803,7 @@
                 checkoutSummaryContainer.appendChild(listItem);
                 total += product.price * (product.quantity || 1);
             }
-            checkoutTotalEl.textContent = total.toFixed(2);
+            checkoutTotalFinalEl.textContent = total.toFixed(2);
         }
 
         function createListItem(product, type) {
