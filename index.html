@@ -262,6 +262,9 @@
             margin-top: 10px;
             color: #d9534f;
         }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
         /* --- List Styling (Cart, Favs) --- */
         .item-list {
@@ -348,7 +351,6 @@
         .checkout-btn:hover {
             background-color: #e68a00;
         }
-
     </style>
 </head>
 <body>
@@ -394,7 +396,41 @@
                 <div class="checkout-section">
                     <h3>ملخص الطلب</h3>
                     <p class="checkout-total">المجموع: <span id="cart-total">0</span> جنيه</p>
-                    <button id="checkout-btn" class="checkout-btn">⚡️ إتمام الشراء</button>
+                    <button id="goto-checkout-btn" class="checkout-btn">⚡️ إتمام الشراء</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="checkout-tab" class="tab-content">
+            <div style="padding: 20px;">
+                <h2>إتمام الشراء</h2>
+                <div id="checkout-summary" class="item-list">
+                    </div>
+                <div class="checkout-section">
+                    <p class="checkout-total">المجموع الكلي: <span id="checkout-total">0</span> جنيه</p>
+                </div>
+                <div class="form-container" style="max-width: 100%;">
+                    <h3>معلومات الشحن</h3>
+                    <div class="form-group">
+                        <input type="text" id="shipping-name" placeholder="الاسم الكامل" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="shipping-address" placeholder="العنوان بالتفصيل" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="shipping-phone" placeholder="رقم الهاتف" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="shipping-city" placeholder="المدينة / المنطقة" required>
+                    </div>
+
+                    <h3>طريقة الدفع</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" name="payment-method" value="cash" checked> الدفع عند الاستلام
+                        </label>
+                    </div>
+                    <button id="place-order-btn" class="checkout-btn">تأكيد الطلب</button>
                 </div>
             </div>
         </div>
@@ -447,6 +483,7 @@
         const database = getDatabase(app);
         let allProducts = [];
         let categories = {};
+        let currentCart = {};
         
         const homeContent = document.getElementById('home-content');
         const categoryFilter = document.getElementById('category-filter');
@@ -475,6 +512,10 @@
         const cartItemsContainer = document.getElementById('cart-items');
         const favoritesListContainer = document.getElementById('favorites-list');
         const cartTotalEl = document.getElementById('cart-total');
+        const gotoCheckoutBtn = document.getElementById('goto-checkout-btn');
+        const checkoutSummaryContainer = document.getElementById('checkout-summary');
+        const checkoutTotalEl = document.getElementById('checkout-total');
+        const placeOrderBtn = document.getElementById('place-order-btn');
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
@@ -531,6 +572,7 @@
             const cartRef = ref(database, `users/${currentUserId}/cart`);
             onValue(cartRef, (snapshot) => {
                 const cartItems = snapshot.val() || {};
+                currentCart = cartItems; // Save a copy of the cart
                 renderCart(cartItems);
             });
 
@@ -611,9 +653,16 @@
             const product = allProducts.find(p => p.sku === sku);
             const cartRef = ref(database, `users/${currentUserId}/cart/${sku}`);
             
-            await set(cartRef, { ...product, quantity: 1 })
-                 .then(() => alert(`تم إضافة ${product.name} إلى السلة.`))
-                 .catch(error => alert(`خطأ: ${error.message}`));
+            onValue(cartRef, (snapshot) => {
+                let quantity = 1;
+                if (snapshot.exists()) {
+                    quantity = snapshot.val().quantity + 1;
+                }
+                set(cartRef, { ...product, quantity: quantity })
+                    .then(() => alert(`تم إضافة ${product.name} إلى السلة.`))
+                    .catch(error => alert(`خطأ: ${error.message}`));
+            }, {onlyOnce: true});
+
             closeActionsModal();
         }
 
@@ -624,27 +673,70 @@
             alert(`سيتم تحويلك لصفحة الدفع لشراء المنتج ${e.target.dataset.sku}!`);
             closeActionsModal();
         });
-        document.getElementById('checkout-btn').addEventListener('click', handleCheckout);
         
-        async function handleCheckout() {
+        gotoCheckoutBtn.addEventListener('click', () => {
+             if (Object.keys(currentCart).length === 0) {
+                 alert("سلة التسوق فارغة، لا يمكن إتمام الشراء.");
+                 return;
+             }
+             renderCheckoutPage(currentCart);
+             showTab('checkout-tab');
+        });
+
+        placeOrderBtn.addEventListener('click', handlePlaceOrder);
+
+        async function handlePlaceOrder() {
             if (!currentUserId) {
                 alert("الرجاء تسجيل الدخول أولاً لإتمام الشراء.");
                 return;
             }
-            const cartRef = ref(database, `users/${currentUserId}/cart`);
-            // Check if cart is empty before clearing
-            onValue(cartRef, (snapshot) => {
-                 if (snapshot.exists()) {
-                    set(cartRef, null)
-                        .then(() => {
-                            alert("تم إتمام عملية الشراء بنجاح. شكراً لك!");
-                            showTab('home-tab');
-                        })
-                        .catch(error => alert(`خطأ: ${error.message}`));
-                 } else {
-                    alert("سلة التسوق فارغة.");
-                 }
-            }, {onlyOnce: true});
+
+            const shippingName = document.getElementById('shipping-name').value;
+            const shippingAddress = document.getElementById('shipping-address').value;
+            const shippingPhone = document.getElementById('shipping-phone').value;
+            const shippingCity = document.getElementById('shipping-city').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            if (!shippingName || !shippingAddress || !shippingPhone || !shippingCity) {
+                alert("الرجاء تعبئة جميع معلومات الشحن.");
+                return;
+            }
+
+            const orderDetails = {
+                items: currentCart,
+                total: calculateTotal(currentCart),
+                shippingInfo: {
+                    name: shippingName,
+                    address: shippingAddress,
+                    phone: shippingPhone,
+                    city: shippingCity
+                },
+                paymentMethod: paymentMethod,
+                status: 'قيد المراجعة',
+                timestamp: new Date().toISOString()
+            };
+
+            const ordersRef = ref(database, `users/${currentUserId}/orders`);
+            const newOrderRef = push(ordersRef);
+
+            await set(newOrderRef, orderDetails)
+                 .then(() => {
+                     // Clear the cart after a successful order
+                     const cartRef = ref(database, `users/${currentUserId}/cart`);
+                     set(cartRef, null);
+
+                     alert("تم تأكيد طلبك بنجاح! سيتم التواصل معك قريباً.");
+                     showTab('home-tab');
+                 })
+                 .catch(error => alert(`خطأ: ${error.message}`));
+        }
+
+        function calculateTotal(items) {
+            let total = 0;
+            for (const sku in items) {
+                total += items[sku].price * (items[sku].quantity || 1);
+            }
+            return total;
         }
 
         // --- Rendering Functions ---
@@ -679,6 +771,26 @@
                     favoritesListContainer.appendChild(itemEl);
                 }
             }
+        }
+        
+        function renderCheckoutPage(cartItems) {
+            checkoutSummaryContainer.innerHTML = '';
+            let total = 0;
+            for (const sku in cartItems) {
+                const product = cartItems[sku];
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.innerHTML = `
+                    <img src="https://raw.githubusercontent.com/masyomas/almas/main/images/${product['barcode 1']}.jpg" alt="${product.name}" class="item-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/60x60.png?text=No+Image';">
+                    <div class="item-info">
+                        <p class="item-name">${product.name}</p>
+                        <p class="item-price">${product.price} جنيه x ${product.quantity || 1}</p>
+                    </div>
+                `;
+                checkoutSummaryContainer.appendChild(listItem);
+                total += product.price * (product.quantity || 1);
+            }
+            checkoutTotalEl.textContent = total.toFixed(2);
         }
 
         function createListItem(product, type) {
