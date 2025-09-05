@@ -1,81 +1,85 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجري الإلكتروني</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
 
-    <header>
-        <h1>متجري الإلكتروني</h1>
-        <nav>
-            <a href="#" id="nav-products">المنتجات</a>
-            <a href="#" id="nav-cart">سلة المشتريات (<span id="cart-count">0</span>)</a>
-            <a href="#" id="nav-profile">صفحتي الشخصية</a>
-            <a href="#" id="nav-logout" style="display: none;">تسجيل الخروج</a>
-        </nav>
-    </header>
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    <main>
-        <section id="auth-page">
-            <div id="login-form">
-                <h2>تسجيل الدخول</h2>
-                <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="login-password" placeholder="كلمة المرور" required>
-                <button id="login-btn">دخول</button>
-                <p>ليس لديك حساب؟ <a href="#" id="show-signup">سجل الآن</a></p>
-            </div>
-            <div id="signup-form" style="display: none;">
-                <h2>تسجيل حساب جديد</h2>
-                <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="signup-password" placeholder="كلمة المرور" required>
-                <button id="signup-btn">تسجيل</button>
-                <p>لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
-            </div>
-        </section>
+header nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+}
 
-        <section id="products-page" style="display: none;">
-            <h2>منتجاتنا</h2>
-            <div id="product-list"></div>
-        </section>
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
 
-        <section id="cart-page" style="display: none;">
-            <h2>سلة المشتريات</h2>
-            <div id="cart-items"></div>
-            <h3>الإجمالي: <span id="cart-total">0</span> جنيه</h3>
-            <button id="checkout-btn">إتمام الطلب</button>
-        </section>
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
 
-        <section id="profile-page" style="display: none;">
-            <h2>صفحتي الشخصية</h2>
-            <p>مرحباً <span id="user-email"></span></p>
+#auth-page, #login-form, #signup-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: auto;
+}
 
-            <div class="profile-section">
-                <h3>حالة الطلبات الحالية</h3>
-                <div id="order-status">
-                    </div>
-            </div>
+input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
 
-            <div class="profile-section">
-                <h3>عملياتي السابقة</h3>
-                <ul id="order-history"></ul>
-            </div>
-            
-            <div class="profile-section">
-                <h3>مفضلاتي</h3>
-                <div id="favorites-list"></div>
-            </div>
-        </section>
+button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-    </main>
+button:hover {
+    background-color: #0056b3;
+}
 
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+#product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+.product-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-section {
+    margin-top: 30px;
+}
