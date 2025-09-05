@@ -122,19 +122,23 @@ async function fetchProducts() {
     }
 }
 
+// --- ✨ تم تعديل هذه الدالة لتناسب هيكل الـ JSON الجديد ---
 function renderProducts() {
     productListDiv.innerHTML = '';
-    productsData.forEach(category => {
-        category.items.forEach(item => {
+    // المرور على مصفوفة المنتجات مباشرة
+    productsData.forEach(item => {
+        // التحقق من أن المنتج لديه سعر واسم
+        if (item.name && item.price) {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
             productCard.innerHTML = `
                 <h3>${item.name}</h3>
+                <p>الفئة: ${item.category}</p>
                 <p>السعر: ${item.price} جنيه</p>
-                <button onclick="addToCart(${item.id})">أضف إلى السلة</button>
+                <button onclick="addToCart('${item.sku}')">أضف إلى السلة</button>
             `;
             productListDiv.appendChild(productCard);
-        });
+        }
     });
 }
 
@@ -142,16 +146,16 @@ function renderProducts() {
 // =================================================
 // 7. إدارة سلة المشتريات
 // =================================================
-function findProductById(id) {
-    for (const category of productsData) {
-        const found = category.items.find(item => item.id === id);
-        if (found) return found;
-    }
-    return null;
+
+// --- ✨ تم تعديل هذه الدالة للبحث في الهيكل الجديد ---
+function findProductById(sku) {
+    // البحث في مصفوفة المنتجات مباشرة عن المنتج الذي يطابق الـ sku
+    return productsData.find(item => item.sku === sku);
 }
 
-function addToCart(productId) {
-    const product = findProductById(productId);
+function addToCart(productSku) {
+    // نستخدم الـ sku الآن للعثور على المنتج
+    const product = findProductById(productSku);
     if (product) {
         cart.push(product);
         updateCart();
@@ -268,7 +272,8 @@ function translateStatus(status) {
         pending: 'قيد المراجعة',
         preparing: 'قيد التجهيز',
         shipped: 'تم الشحن',
-        delivered: 'تم التوصيل'
+        delivered: 'تم التوصيل',
+        payment_review: 'قيد مراجعة الدفع'
     };
     return statuses[status] || status;
 }
