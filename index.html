@@ -21,13 +21,13 @@
             color: var(--text-color);
         }
         
-        /* --- Header & Navigation --- */
+        /* --- Header & Tab Navigation --- */
         header {
             background-color: #131921;
             color: white;
             padding: 10px 20px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             position: sticky;
             top: 0;
@@ -35,14 +35,25 @@
         }
         header h1 {
             font-size: 1.5rem;
-            margin: 0;
+            margin: 0 0 10px 0;
+        }
+        header nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         header nav a {
             color: white;
             margin: 0 10px;
+            padding: 10px 15px;
             text-decoration: none;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+        header nav a:hover, header nav a.active {
+            background-color: var(--primary-color);
         }
 
         main {
@@ -51,10 +62,14 @@
             margin: auto;
         }
         
-        section {
-            display: none; /* Initially hide all sections */
+        /* --- Tab Content --- */
+        .tab-content {
+            display: none; /* Hide all content by default */
         }
-        
+        .tab-content.active {
+            display: block; /* Show active tab content */
+        }
+
         /* --- Search & Filter Bar --- */
         .toolbar {
             background-color: var(--card-background);
@@ -90,12 +105,12 @@
             display: grid;
             grid-template-rows: repeat(2, 1fr);
             grid-auto-flow: column;
-            grid-auto-columns: 220px; /* Width of each card column */
+            grid-auto-columns: 220px;
             gap: 15px;
             overflow-x: auto;
-            padding-bottom: 15px; /* space for scrollbar */
+            padding-bottom: 15px;
             scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
         }
         .category-grid::-webkit-scrollbar {
             display: none;
@@ -207,6 +222,46 @@
         .modal-actions .buy-now:hover {
             background-color: #e68a00;
         }
+        
+        /* --- Form Styling --- */
+        .form-container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-container h2 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+        .form-container input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container button:hover {
+            background-color: #005f6b;
+        }
+        .message {
+            text-align: center;
+            margin-top: 10px;
+            color: #d9534f;
+        }
     </style>
 </head>
 <body>
@@ -214,16 +269,15 @@
     <header>
         <h1>متجري</h1>
         <nav>
-            <a id="nav-home">الرئيسية</a>
-            <a id="nav-login" style="display: none;">تسجيل الدخول</a>
-            <a id="nav-cart" style="display: none;">السلة (<span id="cart-count">0</span>)</a>
-            <a id="nav-profile" style="display: none;">صفحتي الشخصية</a>
-            <a id="nav-logout" style="display: none;">تسجيل الخروج</a>
+            <a id="nav-home" class="tab-link active">الرئيسية</a>
+            <a id="nav-auth" class="tab-link">تسجيل الدخول</a>
+            <a id="nav-cart" class="tab-link">السلة (<span id="cart-count">0</span>)</a>
+            <a id="nav-profile" class="tab-link">صفحتي الشخصية</a>
         </nav>
     </header>
 
     <main>
-        <section id="home-page">
+        <div id="home-tab" class="tab-content active">
             <div class="toolbar">
                 <input type="search" id="search-input" placeholder="ابحث عن منتج...">
                 <select id="category-filter">
@@ -231,11 +285,32 @@
                 </select>
             </div>
             <div id="home-content"></div>
-        </section>
+        </div>
 
-        <section id="auth-page"> </section>
-        <section id="cart-page"> </section>
-        <section id="profile-page"> </section>
+        <div id="auth-tab" class="tab-content">
+             <div class="form-container">
+                <h2>تسجيل الدخول / إنشاء حساب</h2>
+                <input type="email" id="auth-email" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="auth-password" placeholder="كلمة المرور" required>
+                <button id="login-btn">تسجيل الدخول</button>
+                <button id="signup-btn" style="background-color: #5cb85c; margin-top: 10px;">إنشاء حساب جديد</button>
+                <p id="auth-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="cart-tab" class="tab-content">
+            <div style="text-align: center; padding: 50px;">
+                <h2>سلة التسوق</h2>
+                <p>محتوى السلة يظهر هنا.</p>
+            </div>
+        </div>
+
+        <div id="profile-tab" class="tab-content">
+            <div style="text-align: center; padding: 50px;">
+                <h2>صفحتي الشخصية</h2>
+                <p>محتوى الصفحة الشخصية يظهر هنا.</p>
+            </div>
+        </div>
     </main>
 
     <div id="actions-modal" class="modal-overlay">
@@ -254,7 +329,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        // باقي دوال Firebase سيتم استيرادها عند الحاجة إليها
+        // Import other Firebase functions as needed
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
@@ -267,6 +343,7 @@
             measurementId: "G-G0WC9BJ6JW"
         };
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         
         let allProducts = [];
         let categories = {};
@@ -278,6 +355,109 @@
         const modalProductName = document.getElementById('modal-product-name');
         const modalProductPrice = document.getElementById('modal-product-price');
 
+        // Tab-related elements
+        const tabLinks = document.querySelectorAll('.tab-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Auth-related elements
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const authMessage = document.getElementById('auth-message');
+        
+        const navLogin = document.getElementById('nav-auth');
+        const navCart = document.getElementById('nav-cart');
+        const navProfile = document.getElementById('nav-profile');
+        const navLogout = document.createElement('a');
+        navLogout.id = 'nav-logout';
+        navLogout.classList.add('tab-link');
+        navLogout.textContent = 'تسجيل الخروج';
+        
+        // Append logout link to navigation
+        document.querySelector('header nav').appendChild(navLogout);
+
+        // --- Tab Switching Logic ---
+        function showTab(targetId) {
+            tabContents.forEach(content => content.classList.remove('active'));
+            tabLinks.forEach(link => link.classList.remove('active'));
+            
+            document.getElementById(targetId).classList.add('active');
+            document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`).classList.add('active');
+        }
+        
+        tabLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetId = e.target.id.replace('nav-', '') + '-tab';
+                if (targetId === 'logout-tab') {
+                    // Handle logout separately
+                    handleLogout();
+                    return;
+                }
+                showTab(targetId);
+            });
+        });
+
+        // --- Firebase Auth Logic ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                navLogin.style.display = 'none';
+                navCart.style.display = 'block';
+                navProfile.style.display = 'block';
+                navLogout.style.display = 'block';
+            } else {
+                // User is signed out
+                navLogin.style.display = 'block';
+                navCart.style.display = 'none';
+                navProfile.style.display = 'none';
+                navLogout.style.display = 'none';
+            }
+        });
+
+        async function handleLogin() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                authMessage.textContent = 'تم تسجيل الدخول بنجاح!';
+                authMessage.style.color = '#5cb85c';
+                showTab('home-tab');
+            } catch (error) {
+                authMessage.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
+                authMessage.style.color = '#d9534f';
+            }
+        }
+        
+        async function handleSignup() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                authMessage.textContent = 'تم إنشاء الحساب بنجاح!';
+                authMessage.style.color = '#5cb85c';
+                showTab('home-tab');
+            } catch (error) {
+                authMessage.textContent = `خطأ في إنشاء الحساب: ${error.message}`;
+                authMessage.style.color = '#d9534f';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                alert("تم تسجيل الخروج بنجاح.");
+                showTab('auth-tab');
+            } catch (error) {
+                alert(`خطأ في تسجيل الخروج: ${error.message}`);
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+        signupBtn.addEventListener('click', handleSignup);
+
+        // --- Rest of the existing code ---
+        
         async function loadProducts() {
             try {
                 const response = await fetch('products.json');
@@ -345,8 +525,8 @@
             // 👈👈 عدّل هذه البيانات لتطابق حسابك على جيت هب 👈👈
             // ==============================================================
             const githubUsername = "masyomas"; // 👈 ضع اسم مستخدم جيت هب هنا
-            const repoName = "almas";       // 👈 ضع اسم المستودع هنا
-            const branchName = "main";                  // أو "master"
+            const repoName = "almas";          // 👈 ضع اسم المستودع هنا
+            const branchName = "main";               // أو "master"
             // ==============================================================
 
             const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
@@ -424,8 +604,6 @@
             alert(`سيتم إضافة المنتج ${e.target.dataset.sku} إلى السلة!`);
             closeActionsModal();
         });
-        
-        document.getElementById('home-page').style.display = 'block';
     </script>
 </body>
 </html>
