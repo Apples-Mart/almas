@@ -412,8 +412,36 @@
                 <h2>تسجيل الدخول / إنشاء حساب</h2>
                 <input type="email" id="auth-email" placeholder="البريد الإلكتروني" required>
                 <input type="password" id="auth-password" placeholder="كلمة المرور" required>
+                
+                <!-- Registration fields -->
+                <div id="registration-fields" style="display:none;">
+                    <hr style="margin: 20px 0;">
+                    <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
+                    <input type="tel" id="signup-phone" placeholder="رقم الهاتف" required>
+                    <input type="text" id="signup-address" placeholder="عنوان المنزل" required>
+                    <hr style="margin: 20px 0;">
+                    <h3>خيارات مفضلة (تستخدم تلقائياً في الشراء)</h3>
+                    <div class="form-group">
+                        <label for="preferred-delivery">طريقة الاستلام المفضلة:</label>
+                        <select id="preferred-delivery" class="toolbar-select">
+                            <option value="delivery">التوصيل للمنزل</option>
+                            <option value="pickup">من الفرع</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preferred-payment">طريقة الدفع المفضلة:</label>
+                        <select id="preferred-payment" class="toolbar-select">
+                            <option value="cash">الدفع عند الاستلام</option>
+                            <option value="instapay">انستا باي</option>
+                            <option value="wallet">محفظة</option>
+                        </select>
+                    </div>
+                </div>
+
                 <button id="login-btn">تسجيل الدخول</button>
-                <button id="signup-btn" style="background-color: #5cb85c; margin-top: 10px;">إنشاء حساب جديد</button>
+                <button id="toggle-signup" style="margin-top: 10px;">إنشاء حساب جديد</button>
+                <button id="signup-btn" style="background-color: #5cb85c; display: none; margin-top: 10px;">إرسال طلب التسجيل</button>
+                
                 <p id="auth-message" class="message"></p>
             </div>
         </div>
@@ -536,6 +564,15 @@
                 <div id="orders-list" class="item-list">
                     <p>لا توجد طلبات سابقة.</p>
                 </div>
+                <hr>
+                <div class="form-container" style="max-width: 100%;">
+                    <h3>تغيير كلمة المرور</h3>
+                    <div class="form-group">
+                        <input type="password" id="new-password" placeholder="كلمة المرور الجديدة" required>
+                    </div>
+                    <button id="change-password-btn" class="checkout-btn" style="background-color: var(--primary-color);">تغيير كلمة المرور</button>
+                    <p id="password-change-message" class="message"></p>
+                </div>
             </div>
         </div>
     </main>
@@ -556,7 +593,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -576,8 +613,9 @@
         let allProducts = [];
         let categories = {};
         let currentCart = {};
+        let currentUserProfile = null;
         
-        const SHIPIING_FEES = 30; // 👈 قيمة ثابتة لمصاريف الشحن
+        const SHIPIING_FEES = 30;
 
         const homeContent = document.getElementById('home-content');
         const categoryFilter = document.getElementById('category-filter');
@@ -592,7 +630,14 @@
         const authEmailInput = document.getElementById('auth-email');
         const authPasswordInput = document.getElementById('auth-password');
         const loginBtn = document.getElementById('login-btn');
+        const toggleSignupBtn = document.getElementById('toggle-signup');
         const signupBtn = document.getElementById('signup-btn');
+        const registrationFields = document.getElementById('registration-fields');
+        const signupNameInput = document.getElementById('signup-name');
+        const signupPhoneInput = document.getElementById('signup-phone');
+        const signupAddressInput = document.getElementById('signup-address');
+        const preferredDeliverySelect = document.getElementById('preferred-delivery');
+        const preferredPaymentSelect = document.getElementById('preferred-payment');
         const authMessage = document.getElementById('auth-message');
         const navLogin = document.getElementById('nav-auth');
         const navCart = document.getElementById('nav-cart');
@@ -618,6 +663,9 @@
         const paymentMethodsRadios = document.querySelectorAll('input[name="payment-method"]');
         const instapayQrCode = document.getElementById('instapay-qr');
         const walletQrCode = document.getElementById('wallet-qr');
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const newPasswordInput = document.getElementById('new-password');
+        const passwordChangeMessage = document.getElementById('password-change-message');
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
@@ -643,6 +691,9 @@
                     showTab('cart-tab');
                     return;
                 }
+                if (targetId === 'checkout-tab' && currentUserId && currentUserProfile) {
+                     fillCheckoutForm();
+                }
                 showTab(targetId);
             });
         });
@@ -655,13 +706,19 @@
                 document.getElementById('profile-email').textContent = user.email;
                 navLogin.style.display = 'none';
                 navCart.style.display = 'block';
-                navCheckout.style.display = 'none'; // Hide checkout link initially
+                navCheckout.style.display = 'none';
                 navProfile.style.display = 'block';
                 navLogout.style.display = 'block';
                 showTab('home-tab'); 
                 setupDatabaseListeners();
+                // Load user profile
+                const profileRef = ref(database, `users/${currentUserId}/profile`);
+                onValue(profileRef, (snapshot) => {
+                    currentUserProfile = snapshot.val();
+                });
             } else {
                 currentUserId = null;
+                currentUserProfile = null;
                 navLogin.style.display = 'block';
                 navCart.style.display = 'none';
                 navCheckout.style.display = 'none';
@@ -686,13 +743,14 @@
             const cartRef = ref(database, `users/${currentUserId}/cart`);
             onValue(cartRef, (snapshot) => {
                 const cartItems = snapshot.val() || {};
-                currentCart = cartItems; // Save a copy of the cart
+                currentCart = cartItems;
                 renderCart(cartItems);
                 if (Object.keys(cartItems).length > 0) {
                     navCheckout.style.display = 'block';
                 } else {
                     navCheckout.style.display = 'none';
                 }
+                renderCheckoutPage(cartItems);
             });
 
             // Listen for Favorites changes
@@ -730,17 +788,65 @@
         async function handleSignup() {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
-            if (!email || !password) {
-                authMessage.textContent = 'الرجاء إدخال بريد إلكتروني وكلمة مرور.';
+            const name = signupNameInput.value;
+            const phone = signupPhoneInput.value;
+            const address = signupAddressInput.value;
+            const preferredDelivery = preferredDeliverySelect.value;
+            const preferredPayment = preferredPaymentSelect.value;
+
+            if (!email || !password || !name || !phone || !address) {
+                authMessage.textContent = 'الرجاء تعبئة جميع الحقول المطلوبة.';
                 return;
             }
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const userId = userCredential.user.uid;
+                const profileRef = ref(database, `users/${userId}/profile`);
+                await set(profileRef, {
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    preferredDelivery: preferredDelivery,
+                    preferredPayment: preferredPayment
+                });
                 authMessage.textContent = 'تم إنشاء الحساب بنجاح!';
                 authMessage.style.color = '#5cb85c';
             } catch (error) {
                 authMessage.textContent = `خطأ في إنشاء الحساب: ${error.message}`;
                 authMessage.style.color = '#d9534f';
+            }
+        }
+        
+        toggleSignupBtn.addEventListener('click', () => {
+             const isSignupMode = registrationFields.style.display === 'none';
+             if (isSignupMode) {
+                 registrationFields.style.display = 'block';
+                 signupBtn.style.display = 'block';
+                 loginBtn.style.display = 'none';
+                 toggleSignupBtn.textContent = 'تسجيل الدخول';
+             } else {
+                 registrationFields.style.display = 'none';
+                 signupBtn.style.display = 'none';
+                 loginBtn.style.display = 'block';
+                 toggleSignupBtn.textContent = 'إنشاء حساب جديد';
+             }
+        });
+        
+        async function handlePasswordChange() {
+            const newPassword = newPasswordInput.value;
+            if (!newPassword || newPassword.length < 6) {
+                passwordChangeMessage.textContent = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل.';
+                return;
+            }
+            try {
+                const user = auth.currentUser;
+                await updatePassword(user, newPassword);
+                passwordChangeMessage.textContent = 'تم تغيير كلمة المرور بنجاح!';
+                passwordChangeMessage.style.color = '#5cb85c';
+                newPasswordInput.value = '';
+            } catch (error) {
+                 passwordChangeMessage.textContent = `خطأ: ${error.message}`;
+                 passwordChangeMessage.style.color = '#d9534f';
             }
         }
 
@@ -756,6 +862,7 @@
         loginBtn.addEventListener('click', handleLogin);
         signupBtn.addEventListener('click', handleSignup);
         navLogout.addEventListener('click', handleLogout);
+        changePasswordBtn.addEventListener('click', handlePasswordChange);
 
         // --- Modal & Product Actions ---
         async function addToFavorites(sku) {
@@ -805,8 +912,18 @@
                  alert("سلة التسوق فارغة، لا يمكن إتمام الشراء.");
                  return;
              }
+             fillCheckoutForm();
              showTab('checkout-tab');
         });
+        
+        function fillCheckoutForm() {
+            if (currentUserProfile) {
+                document.getElementById('shipping-name').value = currentUserProfile.name || '';
+                document.getElementById('shipping-phone').value = currentUserProfile.phone || '';
+                document.getElementById('shipping-address').value = currentUserProfile.address || '';
+                document.getElementById('shipping-city').value = currentUserProfile.city || '';
+            }
+        }
 
         placeOrderBtn.addEventListener('click', handlePlaceOrder);
 
@@ -848,7 +965,6 @@
 
             await set(newOrderRef, orderDetails)
                  .then(() => {
-                     // Clear the cart after a successful order
                      const cartRef = ref(database, `users/${currentUserId}/cart`);
                      set(cartRef, null);
 
@@ -1063,21 +1179,6 @@
             });
         }
         
-        function createCategorySection(title, products) {
-            const sectionEl = document.createElement('div');
-            sectionEl.className = 'category-section';
-            const titleEl = document.createElement('h2');
-            titleEl.textContent = title;
-            sectionEl.appendChild(titleEl);
-            const gridEl = document.createElement('div');
-            gridEl.className = 'category-grid';
-            products.sort(() => 0.5 - Math.random()).slice(0, 10).forEach(product => {
-                gridEl.appendChild(createProductCard(product));
-            });
-            sectionEl.appendChild(gridEl);
-            return sectionEl;
-        }
-
         function createProductCard(product) {
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -1085,24 +1186,21 @@
             const githubUsername = "masyomas";
             const repoName = "almas";
             const branchName = "main";
+            
             const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+            const placeholderUrl = `https://via.placeholder.com/200x150.png?text=${encodeURIComponent(product.name)}`;
             
-            const cardImageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
-
-            const imageExists = new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = cardImageUrl;
-            });
-            
-            imageExists.then(exists => {
-                const finalImageUrl = exists ? cardImageUrl : `https://via.placeholder.com/200x150.png?text=${encodeURIComponent(product.name)}`;
-                card.querySelector('.product-image').src = finalImageUrl;
-            });
+            const imageEl = new Image();
+            imageEl.src = imageUrl;
+            imageEl.onload = () => {
+                card.querySelector('.product-image').src = imageUrl;
+            };
+            imageEl.onerror = () => {
+                card.querySelector('.product-image').src = placeholderUrl;
+            };
 
             card.innerHTML = `
-                <img src="https://via.placeholder.com/200x150.png?text=Loading..." alt="${product.name}" class="product-image">
+                <img src="${placeholderUrl}" alt="${product.name}" class="product-image">
                 <div class="product-info">
                     <p class="product-name">${product.name}</p>
                     <p class="product-price">${product.price} جنيه</p>
