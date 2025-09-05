@@ -236,7 +236,7 @@
             text-align: center;
             color: var(--primary-color);
         }
-        .form-container input {
+        .form-container input, .form-container select {
             width: calc(100% - 24px);
             padding: 12px;
             margin-bottom: 15px;
@@ -290,7 +290,7 @@
             font-weight: bold;
         }
 
-        /* --- List Styling (Cart, Favs) --- */
+        /* --- List Styling (Cart, Favs, Orders) --- */
         .item-list {
             display: flex;
             flex-direction: column;
@@ -343,6 +343,32 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
+        .admin-order-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .admin-order-card h4 {
+            margin-top: 0;
+        }
+        .admin-order-card p {
+            margin: 5px 0;
+        }
+        .admin-order-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .admin-order-actions button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9rem;
+        }
 
         /* --- Checkout Section --- */
         .checkout-section {
@@ -393,6 +419,7 @@
             <a id="nav-cart" class="tab-link">السلة (<span id="cart-count">0</span>)</a>
             <a id="nav-checkout" class="tab-link" style="display: none;">الدفع</a>
             <a id="nav-profile" class="tab-link">صفحتي الشخصية</a>
+            <a id="nav-admin" class="tab-link" style="display: none;">الإدارة</a>
         </nav>
     </header>
 
@@ -555,6 +582,15 @@
                 <h2>صفحتي الشخصية</h2>
                 <p><strong>البريد الإلكتروني:</strong> <span id="profile-email"></span></p>
                 <hr>
+                <div class="form-container" style="max-width: 100%;">
+                    <h3>تغيير كلمة المرور</h3>
+                    <div class="form-group">
+                        <input type="password" id="new-password" placeholder="كلمة المرور الجديدة" required>
+                    </div>
+                    <button id="change-password-btn" class="checkout-btn" style="background-color: var(--primary-color);">تغيير كلمة المرور</button>
+                    <p id="password-change-message" class="message"></p>
+                </div>
+                <hr>
                 <h3>المنتجات المفضلة</h3>
                 <div id="favorites-list" class="item-list">
                      <p>لا توجد منتجات مفضلة.</p>
@@ -564,14 +600,15 @@
                 <div id="orders-list" class="item-list">
                     <p>لا توجد طلبات سابقة.</p>
                 </div>
-                <hr>
-                <div class="form-container" style="max-width: 100%;">
-                    <h3>تغيير كلمة المرور</h3>
-                    <div class="form-group">
-                        <input type="password" id="new-password" placeholder="كلمة المرور الجديدة" required>
-                    </div>
-                    <button id="change-password-btn" class="checkout-btn" style="background-color: var(--primary-color);">تغيير كلمة المرور</button>
-                    <p id="password-change-message" class="message"></p>
+            </div>
+        </div>
+
+        <div id="admin-tab" class="tab-content">
+            <div style="padding: 20px;">
+                <h2>لوحة تحكم الإدارة</h2>
+                <p><strong>طلبات جديدة للمراجعة:</strong></p>
+                <div id="admin-orders-list" class="item-list">
+                    <p>لا توجد طلبات حالية.</p>
                 </div>
             </div>
         </div>
@@ -615,7 +652,7 @@
         let currentCart = {};
         let currentUserProfile = null;
         
-        const SHIPIING_FEES = 30;
+        const SHIPIING_FEES = 30; // 👈 قيمة ثابتة لمصاريف الشحن
 
         const homeContent = document.getElementById('home-content');
         const categoryFilter = document.getElementById('category-filter');
@@ -643,6 +680,7 @@
         const navCart = document.getElementById('nav-cart');
         const navCheckout = document.getElementById('nav-checkout');
         const navProfile = document.getElementById('nav-profile');
+        const navAdmin = document.getElementById('nav-admin');
         const navLogout = document.createElement('a');
         navLogout.id = 'nav-logout';
         navLogout.classList.add('tab-link');
@@ -654,6 +692,7 @@
         const cartTotalEl = document.getElementById('cart-total');
         const favoritesListContainer = document.getElementById('favorites-list');
         const ordersListContainer = document.getElementById('orders-list');
+        const adminOrdersList = document.getElementById('admin-orders-list');
         const gotoCheckoutBtn = document.getElementById('goto-checkout-btn');
         const checkoutSummaryContainer = document.getElementById('checkout-summary');
         const checkoutSubtotalEl = document.getElementById('checkout-subtotal');
@@ -666,6 +705,9 @@
         const changePasswordBtn = document.getElementById('change-password-btn');
         const newPasswordInput = document.getElementById('new-password');
         const passwordChangeMessage = document.getElementById('password-change-message');
+
+        // Admin Secret Key - يمكنك تغييرها
+        const ADMIN_EMAIL = "admin@store.com";
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
@@ -700,7 +742,7 @@
 
         // --- Firebase Auth & DB Logic ---
         let currentUserId = null;
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
                 document.getElementById('profile-email').textContent = user.email;
@@ -709,8 +751,16 @@
                 navCheckout.style.display = 'none';
                 navProfile.style.display = 'block';
                 navLogout.style.display = 'block';
+                
+                if (user.email === ADMIN_EMAIL) {
+                    navAdmin.style.display = 'block';
+                } else {
+                    navAdmin.style.display = 'none';
+                }
+
                 showTab('home-tab'); 
                 setupDatabaseListeners();
+                
                 // Load user profile
                 const profileRef = ref(database, `users/${currentUserId}/profile`);
                 onValue(profileRef, (snapshot) => {
@@ -723,6 +773,7 @@
                 navCart.style.display = 'none';
                 navCheckout.style.display = 'none';
                 navProfile.style.display = 'none';
+                navAdmin.style.display = 'none';
                 navLogout.style.display = 'none';
                 showTab('auth-tab');
                 clearUI();
@@ -766,6 +817,23 @@
                 const orders = snapshot.val() || {};
                 renderOrders(orders);
             });
+
+            // Listen for ALL orders for admin page
+            if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                const allOrdersRef = ref(database, 'users');
+                onValue(allOrdersRef, (snapshot) => {
+                    const allUsers = snapshot.val() || {};
+                    let allOrders = {};
+                    for (const userId in allUsers) {
+                        if (allUsers[userId].orders) {
+                            for (const orderId in allUsers[userId].orders) {
+                                allOrders[orderId] = { ...allUsers[userId].orders[orderId], userId: userId };
+                            }
+                        }
+                    }
+                    renderAdminOrders(allOrders);
+                });
+            }
         }
         
         async function handleLogin() {
@@ -1041,6 +1109,43 @@
                  ordersListContainer.appendChild(orderEl);
              }
         }
+        
+        function renderAdminOrders(allOrders) {
+            adminOrdersList.innerHTML = '';
+            let hasOrders = false;
+            for (const userId in allOrders) {
+                for (const orderId in allOrders[userId].orders) {
+                    const order = allOrders[userId].orders[orderId];
+                    hasOrders = true;
+                    const orderEl = document.createElement('div');
+                    orderEl.className = 'admin-order-card';
+                    orderEl.innerHTML = `
+                        <h4>طلب رقم: ${orderId.substring(0, 5)}</h4>
+                        <p><strong>العميل:</strong> ${order.shippingInfo.name}</p>
+                        <p><strong>الحالة:</strong> ${order.status}</p>
+                        <p><strong>الإجمالي:</strong> ${order.total.toFixed(2)} جنيه</p>
+                        <p><strong>تفاصيل:</strong> <button class="view-order-details-btn" data-user-id="${userId}" data-order-id="${orderId}">عرض</button></p>
+                        <div class="admin-order-actions">
+                             <button style="background-color: #007bff;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم تأكيد الدفع')">تأكيد الدفع</button>
+                             <button style="background-color: #28a745;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التجهيز')">تجهيز الشحنة</button>
+                             <button style="background-color: #ffc107;" onclick="updateOrderStatus('${userId}', '${orderId}', 'قيد التوصيل')">قيد التوصيل</button>
+                             <button style="background-color: #dc3545;" onclick="updateOrderStatus('${userId}', '${orderId}', 'تم التسليم')">تم التسليم</button>
+                        </div>
+                    `;
+                    adminOrdersList.appendChild(orderEl);
+                }
+            }
+            if (!hasOrders) {
+                adminOrdersList.innerHTML = '<p>لا توجد طلبات حالية.</p>';
+            }
+        }
+        
+        async function updateOrderStatus(userId, orderId, newStatus) {
+            const orderRef = ref(database, `users/${userId}/orders/${orderId}`);
+            await set(orderRef, { status: newStatus }, { merge: true })
+                 .then(() => alert(`تم تحديث حالة الطلب ${orderId.substring(0, 5)} إلى: ${newStatus}`))
+                 .catch(error => alert(`خطأ: ${error.message}`));
+        }
 
         function renderCheckoutPage(cartItems) {
             checkoutSummaryContainer.innerHTML = '';
@@ -1067,7 +1172,6 @@
             const githubUsername = "masyomas";
             const repoName = "almas";
             const branchName = "main";
-            const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
             
             const listItem = document.createElement('div');
             listItem.className = 'list-item';
@@ -1081,8 +1185,11 @@
                 `;
             }
 
+            const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+            const placeholderUrl = `https://via.placeholder.com/60x60.png?text=${encodeURIComponent(product.name)}`;
+            
             listItem.innerHTML = `
-                <img src="${imageUrl}" alt="${product.name}" class="item-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/60x60.png?text=No+Image';">
+                <img src="${placeholderUrl}" alt="${product.name}" class="item-image">
                 <div class="item-info">
                     <p class="item-name">${product.name}</p>
                     <p class="item-price">${product.price} جنيه</p>
@@ -1092,6 +1199,17 @@
                 </div>
             `;
             
+            // Image loading logic
+            const imgEl = listItem.querySelector('.item-image');
+            const realImg = new Image();
+            realImg.onload = () => {
+                imgEl.src = imageUrl;
+            };
+            realImg.onerror = () => {
+                imgEl.src = placeholderUrl;
+            };
+            realImg.src = imageUrl;
+
             // Event listeners
             listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
                 const sku = e.target.dataset.sku;
@@ -1179,6 +1297,21 @@
             });
         }
         
+        function createCategorySection(title, products) {
+            const sectionEl = document.createElement('div');
+            sectionEl.className = 'category-section';
+            const titleEl = document.createElement('h2');
+            titleEl.textContent = title;
+            sectionEl.appendChild(titleEl);
+            const gridEl = document.createElement('div');
+            gridEl.className = 'category-grid';
+            products.sort(() => 0.5 - Math.random()).slice(0, 10).forEach(product => {
+                gridEl.appendChild(createProductCard(product));
+            });
+            sectionEl.appendChild(gridEl);
+            return sectionEl;
+        }
+
         function createProductCard(product) {
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -1190,22 +1323,30 @@
             const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
             const placeholderUrl = `https://via.placeholder.com/200x150.png?text=${encodeURIComponent(product.name)}`;
             
-            const imageEl = new Image();
-            imageEl.src = imageUrl;
-            imageEl.onload = () => {
-                card.querySelector('.product-image').src = imageUrl;
+            const imageEl = document.createElement('img');
+            imageEl.src = placeholderUrl;
+            imageEl.alt = product.name;
+            imageEl.className = 'product-image';
+            
+            const realImg = new Image();
+            realImg.onload = () => {
+                imageEl.src = imageUrl;
             };
-            imageEl.onerror = () => {
-                card.querySelector('.product-image').src = placeholderUrl;
+            realImg.onerror = () => {
+                imageEl.src = placeholderUrl;
             };
+            realImg.src = imageUrl;
 
-            card.innerHTML = `
-                <img src="${placeholderUrl}" alt="${product.name}" class="product-image">
-                <div class="product-info">
-                    <p class="product-name">${product.name}</p>
-                    <p class="product-price">${product.price} جنيه</p>
-                </div>
+            card.appendChild(imageEl);
+
+            const productInfoEl = document.createElement('div');
+            productInfoEl.className = 'product-info';
+            productInfoEl.innerHTML = `
+                <p class="product-name">${product.name}</p>
+                <p class="product-price">${product.price} جنيه</p>
             `;
+            card.appendChild(productInfoEl);
+
             return card;
         }
 
