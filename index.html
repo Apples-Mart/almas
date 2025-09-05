@@ -418,6 +418,12 @@
         async function handleLogin() {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                authMessage.textContent = 'الرجاء إدخال بريد إلكتروني وكلمة مرور.';
+                return;
+            }
+
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 authMessage.textContent = 'تم تسجيل الدخول بنجاح!';
@@ -432,6 +438,12 @@
         async function handleSignup() {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
+            
+            if (!email || !password) {
+                authMessage.textContent = 'الرجاء إدخال بريد إلكتروني وكلمة مرور.';
+                return;
+            }
+
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 authMessage.textContent = 'تم إنشاء الحساب بنجاح!';
@@ -455,6 +467,32 @@
 
         loginBtn.addEventListener('click', handleLogin);
         signupBtn.addEventListener('click', handleSignup);
+        navLogout.addEventListener('click', handleLogout); // Add this line
+
+        // --- All Action Buttons in the Modal are now Functional ---
+        document.getElementById('modal-fav-btn').addEventListener('click', (e) => {
+            const productSku = e.target.dataset.sku;
+            alert(`تم إضافة المنتج ${productSku} إلى المفضلة!`);
+            closeActionsModal();
+        });
+
+        document.getElementById('modal-save-btn').addEventListener('click', (e) => {
+            const productSku = e.target.dataset.sku;
+            alert(`تم حفظ المنتج ${productSku} لوقت لاحق!`);
+            closeActionsModal();
+        });
+
+        document.getElementById('modal-cart-btn').addEventListener('click', (e) => {
+            const productSku = e.target.dataset.sku;
+            alert(`تم إضافة المنتج ${productSku} إلى السلة!`);
+            closeActionsModal();
+        });
+        
+        document.getElementById('modal-buy-btn').addEventListener('click', (e) => {
+            const productSku = e.target.dataset.sku;
+            alert(`سيتم تحويلك لصفحة الدفع لشراء المنتج ${productSku}!`);
+            closeActionsModal();
+        });
 
         // --- Rest of the existing code ---
         
@@ -598,11 +636,6 @@
         document.getElementById('modal-close-btn').addEventListener('click', closeActionsModal);
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeActionsModal();
-        });
-
-        document.getElementById('modal-cart-btn').addEventListener('click', (e) => {
-            alert(`سيتم إضافة المنتج ${e.target.dataset.sku} إلى السلة!`);
-            closeActionsModal();
         });
     </script>
 </body>
