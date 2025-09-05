@@ -1,23 +1,31 @@
 // =================================================
 // 1. إعدادات FIREBASE
 // =================================================
-// هام: استبدل هذا الكائن بالمعلومات من مشروعك على Firebase
+// #region Firebase Initialization and Offline Persistence
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, writeBatch, getDocs, where, increment, initializeFirestore, persistentLocalCache, addDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
+  authDomain: "almas-store-a51eb.firebaseapp.com",
+  databaseURL: "https://almas-store-a51eb-default-rtdb.firebaseio.com",
+  projectId: "almas-store-a51eb",
+  storageBucket: "almas-store-a51eb.firebasestorage.app",
+  messagingSenderId: "502522968593",
+  appId: "1:502522968593:web:52dc253f8ea12f4d5bcfb0",
+  measurementId: "G-G0WC9BJ6JW"
 };
+const app = initializeApp(firebaseConfig);
+const db = initializeFirestore(app, { cache: persistentLocalCache({}) });
+const auth = getAuth(app);
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// =================================================
+window.db = db; window.doc = doc; window.collection = collection; window.writeBatch = writeBatch; window.serverTimestamp = serverTimestamp; window.getDocs = getDocs; window.query = query; window.where = where; window.increment = increment; window.addDoc = addDoc; window.setDoc = setDoc;
+window.readCollection = (collectionName, callback, orderByField = "name", orderDirection = "asc") => onSnapshot(query(collection(db, collectionName), orderBy(orderByField, orderDirection)), s => callback(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+window.updateDocument = (collectionName, docId, data) => updateDoc(doc(db, collectionName, docId), data);
+window.deleteDocument = (collectionName, docId) => deleteDoc(doc(db, collectionName, docId));
+window.getDocument = async (collectionName, docId) => { const d = await getDoc(doc(db, collectionName, docId)); return d.exists() ? { id: d.id, ...d.data() } : null; };
+// #endregion// =================================================
 // 2. الوصول لعناصر الصفحة (DOM Elements)
 // =================================================
 const pages = {
