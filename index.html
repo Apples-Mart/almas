@@ -11,41 +11,47 @@
     <header>
         <h1>متجري الإلكتروني</h1>
         <nav>
-            <a href="#" id="nav-products">المنتجات</a>
-            <a href="#" id="nav-cart" style="display: none;">سلة المشتريات (<span id="cart-count">0</span>)</a>
+            <a href="#" id="nav-home">الرئيسية</a>
+            <a href="#" id="nav-login" style="display: none;">تسجيل الدخول</a>
+            <a href="#" id="nav-cart" style="display: none;">السلة (<span id="cart-count">0</span>)</a>
             <a href="#" id="nav-profile" style="display: none;">صفحتي الشخصية</a>
             <a href="#" id="nav-logout" style="display: none;">تسجيل الخروج</a>
         </nav>
     </header>
 
     <main>
-        <section id="auth-page">
-            <div id="login-form">
-                <h2>تسجيل الدخول</h2>
-                <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="login-password" placeholder="كلمة المرور" required>
-                <button id="login-btn">دخول</button>
-                <p>ليس لديك حساب؟ <a href="#" id="show-signup">سجل الآن</a></p>
-            </div>
-            <div id="signup-form" style="display: none;">
-                <h2>تسجيل حساب جديد</h2>
-                <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
-                <input type="password" id="signup-password" placeholder="كلمة المرور" required>
-                <button id="signup-btn">تسجيل</button>
-                <p>لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
-            </div>
-        </section>
-
-        <section id="products-page" style="display: none;">
+        <section id="home-page" style="display: none;">
             <h2>منتجاتنا</h2>
             <div id="product-list">
                 </div>
         </section>
 
+        <section id="auth-page" style="display: none;">
+            <div id="login-form">
+                <h2>تسجيل الدخول</h2>
+                <input type="email" id="login-email" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="login-password" placeholder="كلمة المرور" required>
+                <button id="login-btn">دخول</button>
+                <p>ليس لديك حساب؟ <a href="#" id="show-signup">سجل حساب جديد</a></p>
+            </div>
+            <div id="signup-form" style="display: none;">
+                <h2>تسجيل حساب جديد</h2>
+                <input type="text" id="signup-name" placeholder="الاسم الكامل" required>
+                <input type="text" id="signup-username" placeholder="اسم المستخدم (إنجليزية بدون مسافات)" required>
+                <small id="username-feedback"></small>
+                <input type="email" id="signup-email" placeholder="البريد الإلكتروني" required>
+                <input type="tel" id="signup-phone" placeholder="رقم الهاتف" required>
+                <input type="text" id="signup-address" placeholder="العنوان" required>
+                <input type="password" id="signup-password" placeholder="كلمة المرور" required>
+                <small>8-14 حرف ورقم بالإنجليزية.</small>
+                <button id="signup-btn">إنشاء الحساب</button>
+                <p>لديك حساب بالفعل؟ <a href="#" id="show-login">سجل الدخول</a></p>
+            </div>
+        </section>
+
         <section id="cart-page" style="display: none;">
             <h2>سلة المشتريات</h2>
-            <div id="cart-items">
-                </div>
+            <div id="cart-items"></div>
             <hr>
             <h3>الإجمالي: <span id="cart-total">0.00</span> جنيه</h3>
             <button id="checkout-btn">إتمام الطلب</button>
@@ -53,31 +59,21 @@
 
         <section id="profile-page" style="display: none;">
             <h2>صفحتي الشخصية</h2>
-            <p>مرحباً بك، <span id="user-email"></span>!</p>
-
+            <p>مرحباً بك، <span id="user-name-display"></span>!</p>
+            <p>اسم المستخدم: <span id="user-username-display"></span></p>
+            <p>البريد الإلكتروني: <span id="user-email-display"></span></p>
+            <hr>
             <div class="profile-section">
                 <h3>حالة الطلبات الحالية</h3>
-                <div id="order-status">
-                    </div>
+                <div id="order-status"></div>
             </div>
-
             <div class="profile-section">
                 <h3>عملياتي السابقة</h3>
-                <ul id="order-history">
-                    </ul>
-            </div>
-            
-            <div class="profile-section">
-                <h3>مفضلاتي</h3>
-                <div id="favorites-list">
-                    <p>هذه الميزة سيتم إضافتها قريباً.</p>
-                </div>
+                <ul id="order-history"></ul>
             </div>
         </section>
-
     </main>
 
     <script type="module" src="script.js"></script>
-    
 </body>
 </html>
