@@ -1,21 +1,7 @@
     </main>
     
     <script type="module">
-        // استيراد المكتبات المطلوبة
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, doc, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-storage.js";
-
-        // جعل الدوال والمكتبات متاحة عالميًا للملف script.js
-        window.firebase = {
-            initializeApp,
-            getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-            getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, doc, updateDoc, orderBy,
-            getStorage, ref, uploadBytesResumable, getDownloadURL
-        };
-    </script>
-    
+        
     <script src="script.js"></script>
 </body>
 </html>
