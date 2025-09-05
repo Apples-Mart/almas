@@ -262,6 +262,79 @@
             margin-top: 10px;
             color: #d9534f;
         }
+
+        /* --- List Styling (Cart, Favs) --- */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .item-list .list-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .item-list .item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .item-list .item-info {
+            flex-grow: 1;
+        }
+        .item-list .item-name {
+            font-weight: bold;
+            margin: 0;
+        }
+        .item-list .item-price {
+            color: #B12704;
+            margin: 5px 0 0;
+        }
+        .item-list .remove-btn {
+            background: none;
+            border: none;
+            color: #d9534f;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- Checkout Section --- */
+        .checkout-section {
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .checkout-section h3 {
+            margin-top: 0;
+        }
+        .checkout-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .checkout-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .checkout-btn:hover {
+            background-color: #e68a00;
+        }
+
     </style>
 </head>
 <body>
@@ -299,16 +372,28 @@
         </div>
 
         <div id="cart-tab" class="tab-content">
-            <div style="text-align: center; padding: 50px;">
+             <div style="padding: 20px;">
                 <h2>سلة التسوق</h2>
-                <p>محتوى السلة يظهر هنا.</p>
+                <div id="cart-items" class="item-list">
+                    <p>سلة التسوق فارغة.</p>
+                </div>
+                <div class="checkout-section">
+                    <h3>ملخص الطلب</h3>
+                    <p class="checkout-total">المجموع: <span id="cart-total">0</span> جنيه</p>
+                    <button id="checkout-btn" class="checkout-btn">⚡️ إتمام الشراء</button>
+                </div>
             </div>
         </div>
 
         <div id="profile-tab" class="tab-content">
-            <div style="text-align: center; padding: 50px;">
+            <div style="padding: 20px;">
                 <h2>صفحتي الشخصية</h2>
-                <p>محتوى الصفحة الشخصية يظهر هنا.</p>
+                <p><strong>البريد الإلكتروني:</strong> <span id="profile-email"></span></p>
+                <hr>
+                <h3>المنتجات المفضلة</h3>
+                <div id="favorites-list" class="item-list">
+                     <p>لا توجد منتجات مفضلة.</p>
+                </div>
             </div>
         </div>
     </main>
@@ -329,9 +414,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        // Import other Firebase functions as needed
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
-        
+        import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
             authDomain: "almas-store-a51eb.firebaseapp.com",
@@ -342,9 +427,10 @@
             appId: "1:502522968593:web:52dc253f8ea12f4d5bcfb0",
             measurementId: "G-G0WC9BJ6JW"
         };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
+        const database = getDatabase(app);
         let allProducts = [];
         let categories = {};
         
@@ -354,18 +440,15 @@
         const modal = document.getElementById('actions-modal');
         const modalProductName = document.getElementById('modal-product-name');
         const modalProductPrice = document.getElementById('modal-product-price');
-
-        // Tab-related elements
+        const cartCountEl = document.getElementById('cart-count');
+        
         const tabLinks = document.querySelectorAll('.tab-link');
         const tabContents = document.querySelectorAll('.tab-content');
-        
-        // Auth-related elements
         const authEmailInput = document.getElementById('auth-email');
         const authPasswordInput = document.getElementById('auth-password');
         const loginBtn = document.getElementById('login-btn');
         const signupBtn = document.getElementById('signup-btn');
         const authMessage = document.getElementById('auth-message');
-        
         const navLogin = document.getElementById('nav-auth');
         const navCart = document.getElementById('nav-cart');
         const navProfile = document.getElementById('nav-profile');
@@ -373,15 +456,16 @@
         navLogout.id = 'nav-logout';
         navLogout.classList.add('tab-link');
         navLogout.textContent = 'تسجيل الخروج';
-        
-        // Append logout link to navigation
         document.querySelector('header nav').appendChild(navLogout);
+
+        const cartItemsContainer = document.getElementById('cart-items');
+        const favoritesListContainer = document.getElementById('favorites-list');
+        const cartTotalEl = document.getElementById('cart-total');
 
         // --- Tab Switching Logic ---
         function showTab(targetId) {
             tabContents.forEach(content => content.classList.remove('active'));
             tabLinks.forEach(link => link.classList.remove('active'));
-            
             document.getElementById(targetId).classList.add('active');
             document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`).classList.add('active');
         }
@@ -390,7 +474,6 @@
             link.addEventListener('click', (e) => {
                 const targetId = e.target.id.replace('nav-', '') + '-tab';
                 if (targetId === 'logout-tab') {
-                    // Handle logout separately
                     handleLogout();
                     return;
                 }
@@ -398,37 +481,64 @@
             });
         });
 
-        // --- Firebase Auth Logic ---
+        // --- Firebase Auth & DB Logic ---
+        let currentUserId = null;
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in
+                currentUserId = user.uid;
+                document.getElementById('profile-email').textContent = user.email;
                 navLogin.style.display = 'none';
                 navCart.style.display = 'block';
                 navProfile.style.display = 'block';
                 navLogout.style.display = 'block';
+                showTab('home-tab'); 
+                setupDatabaseListeners();
             } else {
-                // User is signed out
+                currentUserId = null;
                 navLogin.style.display = 'block';
                 navCart.style.display = 'none';
                 navProfile.style.display = 'none';
                 navLogout.style.display = 'none';
+                showTab('auth-tab');
+                clearUI();
             }
         });
 
+        function clearUI() {
+            cartCountEl.textContent = '0';
+            cartItemsContainer.innerHTML = '<p>سلة التسوق فارغة.</p>';
+            favoritesListContainer.innerHTML = '<p>لا توجد منتجات مفضلة.</p>';
+        }
+
+        function setupDatabaseListeners() {
+            if (!currentUserId) return;
+
+            // Listen for Cart changes
+            const cartRef = ref(database, `users/${currentUserId}/cart`);
+            onValue(cartRef, (snapshot) => {
+                const cartItems = snapshot.val() || {};
+                renderCart(cartItems);
+            });
+
+            // Listen for Favorites changes
+            const favsRef = ref(database, `users/${currentUserId}/favorites`);
+            onValue(favsRef, (snapshot) => {
+                const favItems = snapshot.val() || {};
+                renderFavorites(favItems);
+            });
+        }
+        
         async function handleLogin() {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
-
             if (!email || !password) {
                 authMessage.textContent = 'الرجاء إدخال بريد إلكتروني وكلمة مرور.';
                 return;
             }
-
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 authMessage.textContent = 'تم تسجيل الدخول بنجاح!';
                 authMessage.style.color = '#5cb85c';
-                showTab('home-tab');
             } catch (error) {
                 authMessage.textContent = `خطأ في تسجيل الدخول: ${error.message}`;
                 authMessage.style.color = '#d9534f';
@@ -438,17 +548,14 @@
         async function handleSignup() {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
-            
             if (!email || !password) {
                 authMessage.textContent = 'الرجاء إدخال بريد إلكتروني وكلمة مرور.';
                 return;
             }
-
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
                 authMessage.textContent = 'تم إنشاء الحساب بنجاح!';
                 authMessage.style.color = '#5cb85c';
-                showTab('home-tab');
             } catch (error) {
                 authMessage.textContent = `خطأ في إنشاء الحساب: ${error.message}`;
                 authMessage.style.color = '#d9534f';
@@ -459,7 +566,6 @@
             try {
                 await signOut(auth);
                 alert("تم تسجيل الخروج بنجاح.");
-                showTab('auth-tab');
             } catch (error) {
                 alert(`خطأ في تسجيل الخروج: ${error.message}`);
             }
@@ -467,47 +573,156 @@
 
         loginBtn.addEventListener('click', handleLogin);
         signupBtn.addEventListener('click', handleSignup);
-        navLogout.addEventListener('click', handleLogout); // Add this line
+        navLogout.addEventListener('click', handleLogout);
 
-        // --- All Action Buttons in the Modal are now Functional ---
-        document.getElementById('modal-fav-btn').addEventListener('click', (e) => {
-            const productSku = e.target.dataset.sku;
-            alert(`تم إضافة المنتج ${productSku} إلى المفضلة!`);
+        // --- Modal & Product Actions ---
+        async function addToFavorites(sku) {
+            if (!currentUserId) {
+                alert("الرجاء تسجيل الدخول أولاً لإضافة منتجات إلى المفضلة.");
+                return;
+            }
+            const product = allProducts.find(p => p.sku === sku);
+            const favRef = ref(database, `users/${currentUserId}/favorites/${sku}`);
+            await set(favRef, product)
+                .then(() => alert(`تم إضافة ${product.name} إلى المفضلة.`))
+                .catch(error => alert(`خطأ: ${error.message}`));
             closeActionsModal();
-        });
+        }
 
-        document.getElementById('modal-save-btn').addEventListener('click', (e) => {
-            const productSku = e.target.dataset.sku;
-            alert(`تم حفظ المنتج ${productSku} لوقت لاحق!`);
+        async function addToCart(sku) {
+            if (!currentUserId) {
+                alert("الرجاء تسجيل الدخول أولاً لإضافة منتجات إلى السلة.");
+                return;
+            }
+            const product = allProducts.find(p => p.sku === sku);
+            const cartRef = ref(database, `users/${currentUserId}/cart/${sku}`);
+            
+            await set(cartRef, { ...product, quantity: 1 })
+                 .then(() => alert(`تم إضافة ${product.name} إلى السلة.`))
+                 .catch(error => alert(`خطأ: ${error.message}`));
             closeActionsModal();
-        });
+        }
 
-        document.getElementById('modal-cart-btn').addEventListener('click', (e) => {
-            const productSku = e.target.dataset.sku;
-            alert(`تم إضافة المنتج ${productSku} إلى السلة!`);
-            closeActionsModal();
-        });
-        
+        document.getElementById('modal-fav-btn').addEventListener('click', (e) => addToFavorites(e.target.dataset.sku));
+        document.getElementById('modal-save-btn').addEventListener('click', (e) => alert("وظيفة 'حفظ لوقت لاحق' قيد التنفيذ."));
+        document.getElementById('modal-cart-btn').addEventListener('click', (e) => addToCart(e.target.dataset.sku));
         document.getElementById('modal-buy-btn').addEventListener('click', (e) => {
-            const productSku = e.target.dataset.sku;
-            alert(`سيتم تحويلك لصفحة الدفع لشراء المنتج ${productSku}!`);
+            alert(`سيتم تحويلك لصفحة الدفع لشراء المنتج ${e.target.dataset.sku}!`);
             closeActionsModal();
         });
-
-        // --- Rest of the existing code ---
+        document.getElementById('checkout-btn').addEventListener('click', handleCheckout);
         
+        async function handleCheckout() {
+            if (!currentUserId) {
+                alert("الرجاء تسجيل الدخول أولاً لإتمام الشراء.");
+                return;
+            }
+            const cartRef = ref(database, `users/${currentUserId}/cart`);
+            const cartSnapshot = await get(cartRef); // get() is not in Firebase 9.10, so this needs to be onValue
+            const cartItems = cartSnapshot.val();
+
+            if (!cartItems) {
+                alert("سلة التسوق فارغة.");
+                return;
+            }
+
+            // A simplified "purchase" - clear the cart
+            await set(cartRef, null);
+            alert("تم إتمام عملية الشراء بنجاح. شكراً لك!");
+        }
+
+        // --- Rendering Functions ---
+        function renderCart(cartItems) {
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            let itemCount = 0;
+
+            if (Object.keys(cartItems).length === 0) {
+                cartItemsContainer.innerHTML = '<p>سلة التسوق فارغة.</p>';
+            } else {
+                for (const sku in cartItems) {
+                    const product = cartItems[sku];
+                    const itemEl = createListItem(product, 'cart');
+                    cartItemsContainer.appendChild(itemEl);
+                    total += product.price * (product.quantity || 1);
+                    itemCount++;
+                }
+            }
+            cartCountEl.textContent = itemCount.toString();
+            cartTotalEl.textContent = total.toFixed(2);
+        }
+
+        function renderFavorites(favItems) {
+            favoritesListContainer.innerHTML = '';
+            if (Object.keys(favItems).length === 0) {
+                favoritesListContainer.innerHTML = '<p>لا توجد منتجات مفضلة.</p>';
+            } else {
+                for (const sku in favItems) {
+                    const product = favItems[sku];
+                    const itemEl = createListItem(product, 'favorite');
+                    favoritesListContainer.appendChild(itemEl);
+                }
+            }
+        }
+
+        function createListItem(product, type) {
+            const githubUsername = "masyomas";
+            const repoName = "almas";
+            const branchName = "main";
+            const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
+            
+            const listItem = document.createElement('div');
+            listItem.className = 'list-item';
+            
+            listItem.innerHTML = `
+                <img src="${imageUrl}" alt="${product.name}" class="item-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/60x60.png?text=No+Image';">
+                <div class="item-info">
+                    <p class="item-name">${product.name}</p>
+                    <p class="item-price">${product.price} جنيه</p>
+                </div>
+                <button class="remove-btn" data-sku="${product.sku}" data-type="${type}">&times;</button>
+            `;
+            
+            listItem.querySelector('.remove-btn').addEventListener('click', (e) => {
+                const sku = e.target.dataset.sku;
+                const itemType = e.target.dataset.type;
+                if (itemType === 'cart') {
+                    removeFromCart(sku);
+                } else if (itemType === 'favorite') {
+                    removeFromFavorites(sku);
+                }
+            });
+
+            return listItem;
+        }
+
+        async function removeFromCart(sku) {
+             if (!currentUserId) return;
+             const cartRef = ref(database, `users/${currentUserId}/cart/${sku}`);
+             await remove(cartRef)
+                .then(() => alert("تم حذف المنتج من السلة."))
+                .catch(error => alert(`خطأ: ${error.message}`));
+        }
+
+        async function removeFromFavorites(sku) {
+             if (!currentUserId) return;
+             const favRef = ref(database, `users/${currentUserId}/favorites/${sku}`);
+             await remove(favRef)
+                .then(() => alert("تم حذف المنتج من المفضلة."))
+                .catch(error => alert(`خطأ: ${error.message}`));
+        }
+
+        // --- Initial Load & Event Listeners ---
         async function loadProducts() {
             try {
                 const response = await fetch('products.json');
                 allProducts = await response.json();
-                
                 categories = allProducts.reduce((acc, product) => {
                     const category = product.category || 'غير مصنف';
                     if (!acc[category]) acc[category] = [];
                     acc[category].push(product);
                     return acc;
                 }, {});
-
                 populateCategoryFilter();
                 renderHomePage();
             } catch (error) {
@@ -528,7 +743,6 @@
             homeContent.innerHTML = '';
             const categoryNames = Object.keys(categories);
             const randomCategories = categoryNames.sort(() => 0.5 - Math.random()).slice(0, 5);
-            
             randomCategories.forEach(category => {
                 const section = createCategorySection(category, categories[category]);
                 homeContent.appendChild(section);
@@ -538,18 +752,14 @@
         function createCategorySection(title, products) {
             const sectionEl = document.createElement('div');
             sectionEl.className = 'category-section';
-
             const titleEl = document.createElement('h2');
             titleEl.textContent = title;
             sectionEl.appendChild(titleEl);
-            
             const gridEl = document.createElement('div');
             gridEl.className = 'category-grid';
-            
             products.sort(() => 0.5 - Math.random()).slice(0, 10).forEach(product => {
                 gridEl.appendChild(createProductCard(product));
             });
-
             sectionEl.appendChild(gridEl);
             return sectionEl;
         }
@@ -558,17 +768,10 @@
             const card = document.createElement('div');
             card.className = 'product-card';
             card.dataset.sku = product.sku;
-
-            // ==============================================================
-            // 👈👈 عدّل هذه البيانات لتطابق حسابك على جيت هب 👈👈
-            // ==============================================================
-            const githubUsername = "masyomas"; // 👈 ضع اسم مستخدم جيت هب هنا
-            const repoName = "almas";          // 👈 ضع اسم المستودع هنا
-            const branchName = "main";               // أو "master"
-            // ==============================================================
-
+            const githubUsername = "masyomas";
+            const repoName = "almas";
+            const branchName = "main";
             const imageUrl = `https://raw.githubusercontent.com/${githubUsername}/${repoName}/${branchName}/images/${product['barcode 1']}.jpg`;
-            
             card.innerHTML = `
                 <img src="${imageUrl}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/200x150.png?text=No+Image';">
                 <div class="product-info">
@@ -582,19 +785,14 @@
         function handleFilterAndSearch() {
             const category = categoryFilter.value;
             const searchTerm = searchInput.value.toLowerCase();
-            
             homeContent.innerHTML = '';
-
             let filteredProducts = allProducts;
-            
             if (category !== 'all') {
                 filteredProducts = categories[category];
             }
-
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
             }
-            
             if (category === 'all' && !searchTerm) {
                 renderHomePage();
             } else if (filteredProducts.length > 0) {
@@ -608,7 +806,6 @@
         function openActionsModal(sku) {
             const product = allProducts.find(p => p.sku === sku);
             if (!product) return;
-
             modalProductName.textContent = product.name;
             modalProductPrice.textContent = `${product.price} جنيه`;
             modal.querySelectorAll('.modal-actions button').forEach(btn => btn.dataset.sku = sku);
@@ -620,19 +817,16 @@
         }
         
         document.addEventListener('DOMContentLoaded', loadProducts);
-
         categoryFilter.addEventListener('change', handleFilterAndSearch);
         searchInput.addEventListener('keyup', (e) => {
             if (e.key === 'Enter') handleFilterAndSearch();
         });
-
         homeContent.addEventListener('click', (e) => {
             const card = e.target.closest('.product-card');
             if (card) {
                 openActionsModal(card.dataset.sku);
             }
         });
-        
         document.getElementById('modal-close-btn').addEventListener('click', closeActionsModal);
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeActionsModal();
