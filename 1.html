@@ -239,7 +239,7 @@
             cursor: pointer;
             margin-top: 10px;
             font-size: 0.9rem;
-            transition: background-color 极速3s;
+            transition: background-color 3s;
             width: 100%;
         }
         
@@ -257,7 +257,7 @@
         .product-card .product-name {
             font-size: 0.95rem;
             font-weight: 500;
-            margin: 极速0 0 10px 0;
+            margin: 0 0 10px 0;
             line-height: 1.3;
         }
         
@@ -297,7 +297,7 @@
         .payment-details {
             padding: 15px;
             background-color: #f8f9fa;
-           极速 border-radius: 8px;
+            border-radius: 8px;
             margin-top: 10px;
             display: none;
         }
@@ -381,7 +381,7 @@
             flex: 1;
         }
         
-极速 .btn-secondary {
+ .btn-secondary {
             background: #6c757d;
             color: white;
         }
@@ -450,8 +450,8 @@
             <div class="tooltip">الرئيسية</div>
         </div>
         
-        <div class="nav-icon"极速 id="nav-auth-icon" title="تسجيل الدخول">
-            <i class="fas极速 fa-user"></i>
+        <div class="nav-icon" id="nav-auth-icon" title="تسجيل الدخول">
+            <i class="fas fa-user"></i>
             <div class="tooltip">تسجيل الدخول</div>
         </div>
         
@@ -471,7 +471,7 @@
             <div class="tooltip">صفحتي</div>
         </div>
         
-        <div class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style极速="display: none;">
+        <div class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style="display: none;">
             <i class="fas fa-sign-out-alt"></i>
             <div class="tooltip">تسجيل الخروج</div>
         </div>
@@ -499,7 +499,7 @@
 
                 <div id="registration-fields" style="display:none;">
                     <hr style="margin: 20px 0;">
-                    <input type="text" id="sign极速up-name" placeholder="الاسم الكامل" required autocomplete="off">
+                    <input type="text" id="signup-name" placeholder="الاسم الكامل" required autocomplete="off">
                     <input type="tel" id="signup-phone" placeholder="رقم الهاتف" required autocomplete="off">
                     <input type="text" id="signup-address" placeholder="عنوان المنزل" required autocomplete="off">
                 </div>
@@ -519,7 +519,7 @@
                     <p style="text-align: center;">سلة التسوق فارغة.</p>
                 </div>
                 <div id="cart-checkout-section" class="checkout-section hidden">
-                    <h3极速>ملخص الطلب</极速h3>
+                    <h3>ملخص الطلب</h3>
                     <div class="checkout-total-price-row">
                         <span>المجموع:</span>
                         <span id="cart-subtotal">0.00</span>
@@ -585,7 +585,7 @@
                     </div>
                     
                     <div class="payment-option">
-                        <input type="radio" name极速="payment-method" value="ewallet" id="ewallet-payment">
+                        <input type="radio" name="payment-method" value="ewallet" id="ewallet-payment">
                         <label for="ewallet-payment">
                             <i class="payment-icon fas fa-wallet"></i>
                             المحافظ الإلكترونية
@@ -602,7 +602,7 @@
                         <p>بعد التحويل، يرجى إرسال إشعار الدفع عبر الواتساب إلى الرقم أعلاه.</p>
                     </div>
                     
-                    <div id="ewallet-details" class极速="payment-details">
+                    <div id="ewallet-details" class="payment-details">
                         <h4>الدفع عبر المحافظ الإلكترونية</h4>
                         <p>يرجى التواصل مع الإدارة على الرقم <strong>+1234567890</strong> عبر الواتساب لإتمام عملية الدفع عبر المحافظ الإلكترونية.</p>
                         <p>سيقوم ممخدمنا بتزويدك برابط الدفع أو معلومات التحويل اللازمة.</p>
@@ -630,7 +630,7 @@
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 8px;">
-                <极速h3>طلباتي</h3>
+                <h3>طلباتي</h3>
                 <div id="orders-list">
                     <p style="text-align: center;">جاري تحميل الطلبات...</p>
                 </div>
@@ -646,13 +646,13 @@
         import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCfOzC8gkqkVSN极速Z3frtnnCMxbeq-v7yaTY",
+            apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
             authDomain: "almas-store-a51eb.firebaseapp.com",
             databaseURL: "https://almas-store-a51eb-default-rtdb.firebaseio.com",
             projectId: "almas-store-a51eb",
             storageBucket: "almas-store-a51eb.appspot.com",
             messagingSenderId: "502522968593",
-            appId: "1:502522968593:web:52dc253f8ea12f4极速d5bcfb0",
+            appId: "1:502522968593:web:52dc253f8ea12f4d5bcfb0",
             measurementId: "G-G0WC9BJ6JW"
         };
 
@@ -764,7 +764,7 @@
             } else {
                 currentUserId = null;
                 isAdmin = false;
-                updateUI极速ForUserType();
+                updateUIForUserType();
                 showTab('auth-tab');
             }
             if (allProducts.length === 0) loadProducts();
@@ -868,9 +868,9 @@
         };
 
         const processProducts = () => {
-            categories = allProducts.reduce((acc, p极速) => {
+            categories = allProducts.reduce((acc, p) => {
                 const cat = p.category || 'غير مصنف';
-                if (!acc[cat]) acc极速[cat] = [];
+                if (!acc[cat]) acc[cat] = [];
                 acc[cat].push(p);
                 return acc;
             }, {});
@@ -961,7 +961,7 @@
                     <h4>${product.name}</h4>
                     <p><span class="product-sku">الكود:</span> ${product.sku}</p>
                     <p><span class="product-sku">الباركود:</span> ${product['barcode 1']}</p>
-                    <p class="product-price">${formatPrice(product.price)} جنيه</极速p>
+                    <p class="product-price">${formatPrice(product.price)} جنيه</p>
                     <button class="view-details-btn">تفاصيل المنتج</button>
                 </div>
                 <div class="product-info">
@@ -1102,7 +1102,7 @@
             
             itemEl.innerHTML = `
                 <div class="cart-item-info">
-                    <p class极速="cart-item-name">${product.name}</p>
+                    <p class="cart-item-name">${product.name}</p>
                     <p class="cart-item-price">${formatPrice(product.price)} جنيه</p>
                     <div class="cart-item-quantity">
                         <button class="quantity-btn decrease-btn">-</button>
@@ -1129,7 +1129,7 @@
                     <div class="cart-item" style="box-shadow: none; padding: 5px;">
                         <div class="cart-item-info">
                             <p class="cart-item-name">${product.name}</p>
-                            <极速p class="cart-item-price">${formatPrice(product.price)} جنيه x ${product.quantity || 1}</p>
+                            <p class="cart-item-price">${formatPrice(product.price)} جنيه x ${product.quantity || 1}</p>
                         </div>
                     </div>`;
             });
@@ -1154,7 +1154,7 @@
 
             ordersArray.forEach(order => {
                 const orderEl = createOrderCard(order, false);
-                elements.ordersList.appendChild(order极速El);
+                elements.ordersList.appendChild(orderEl);
             });
         };
 
@@ -1172,7 +1172,7 @@
 
             const progressHTML = order.status !== 'ملغي' ? `<div class="order-progress">
                 ${progressSteps.map((label, i) => `
-                    <div class="progress-step ${statusIndex >= i ? 'completed' : ''} ${status极速Index === i ? 'active' : ''}">
+                    <div class="progress-step ${statusIndex >= i ? 'completed' : ''} ${statusIndex === i ? 'active' : ''}">
                         <div class="progress-step-icon">${i+1}</div>
                         <div class="progress-step-label">${label}</div>
                     </div>
@@ -1196,9 +1196,9 @@
                 </div>
                 <p><strong>الإجمالي:</strong> ${formatPrice(order.total)} جنيه</p>
                 <button class="order-details-toggle">عرض التفاصيل</button>
-                <div class="order-items极速-details hidden">
+                <div class="order-items-details hidden">
                     <h4>المنتجات</h4>
-                    ${order极速ItemsHTML}
+                    ${orderItemsHTML}
                 </div>
                 ${progressHTML}
                 ${userActionsHTML}
@@ -1362,7 +1362,7 @@
             window.addEventListener('scroll', () => {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 
-                if (scrollTop > lastScrollTop && scroll极速Top > 100) {
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
                     floatingNav.classList.add('hidden');
                     mainHeader.classList.add('hidden');
                 } else {
@@ -1387,7 +1387,7 @@
             
             safeAddEventListener(getElement('nav-home-icon'), 'click', () => showTab('home-tab'));
             safeAddEventListener(getElement('nav-auth-icon'), 'click', () => showTab('auth-tab'));
-            safeAddEventListener(getElement('nav-cart-icon'), 'click极速', () => showTab('cart极速-tab'));
+            safeAddEventListener(getElement('nav-cart-icon'), 'click', () => showTab('cart-tab'));
             safeAddEventListener(getElement('nav-checkout-icon'), 'click', () => showTab('checkout-tab'));
             safeAddEventListener(getElement('nav-profile-icon'), 'click', () => showTab('profile-tab'));
             safeAddEventListener(getElement('nav-logout-icon'), 'click', () => {
