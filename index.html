@@ -371,6 +371,50 @@
 
         .hidden { display: none !important; }
 
+        /* Payment Method Styles */
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .payment-option:hover, .payment-option-selected {
+            border-color: var(--primary-color);
+            background-color: #f0f8ff;
+        }
+        .payment-option input[type="radio"] {
+            width: auto;
+            margin-bottom: 0;
+            margin-left: 15px;
+        }
+        .payment-icon {
+            font-size: 1.5rem;
+            margin-left: 15px;
+            color: var(--primary-color);
+        }
+        .payment-details {
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid var(--primary-color);
+            display: none;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .qr-code img {
+            max-width: 180px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+        }
+
         /* Toast Notification */
         .toast {
             position: fixed;
@@ -594,7 +638,40 @@
                 </div>
                 <div class="checkout-section">
                     <h3>طريقة الدفع</h3>
-                    <p>سيتم التواصل معك هاتفياً لتأكيد الطلب.</p>
+                    <div class="payment-option">
+                        <input type="radio" name="payment-method" value="cash" id="cash-payment" checked>
+                        <label for="cash-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+                            <i class="payment-icon fas fa-money-bill-wave"></i>
+                            <span>الدفع عند الاستلام</span>
+                        </label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" name="payment-method" value="instapay" id="instapay-payment">
+                        <label for="instapay-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+                            <i class="payment-icon fas fa-mobile-alt"></i>
+                            <span>انستا باي</span>
+                        </label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" name="payment-method" value="ewallet" id="ewallet-payment">
+                         <label for="ewallet-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+                            <i class="payment-icon fas fa-wallet"></i>
+                            <span>المحافظ الإلكترونية</span>
+                        </label>
+                    </div>
+                    <div id="instapay-details" class="payment-details">
+                        <h4>الدفع عبر انستا باي</h4>
+                        <p>قم بمسح الكود QR أدناه أو استخدم الرابط المباشر للتحويل:</p>
+                        <div class="qr-code">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ipn.eg/S/mahmoud79070/instapay/4DCcvb" alt="QR Code">
+                        </div>
+                        <p style="text-align: center;"><a href="https://ipn.eg/S/mahmoud79070/instapay/4DCcvb" target="_blank">اضغط هنا لرابط دفع انستا باي مباشر</a></p>
+                        <p>بعد التحويل، يرجى إرسال إشعار الدفع عبر واتساب إلى الرقم: <strong>+201552402912</strong></p>
+                    </div>
+                    <div id="ewallet-details" class="payment-details">
+                        <h4>الدفع عبر المحافظ الإلكترونية</h4>
+                        <p>يرجى التواصل مع الإدارة على الرقم <strong>+201552402912</strong> عبر واتساب لإتمام عملية الدفع عبر المحافظ الإلكترونية (فودافون كاش، اتصالات كاش، الخ).</p>
+                    </div>
                 </div>
                 <div class="checkout-section">
                     <h3>ملخص الطلب</h3>
@@ -950,6 +1027,7 @@
                     <div>
                         <h4>طلب بتاريخ ${new Date(order.timestamp).toLocaleDateString('ar-EG')}</h4>
                         <p><strong>الإجمالي:</strong> ${formatPrice(order.total)} جنيه</p>
+                        <p><strong>طريقة الدفع:</strong> ${order.paymentMethod || 'الدفع عند الاستلام'}</p>
                     </div>
                     <span class="status-badge ${statusMap[order.status] || 'status-pending'}">${order.status}</span>
                 </div>`;
@@ -969,10 +1047,16 @@
             if (Object.values(shippingInfo).some(val => !val)) {
                 return showToast("الرجاء تعبئة جميع معلومات الشحن.", false);
             }
+            
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'cash';
+            const paymentMethodText = paymentMethod === 'cash' ? 'الدفع عند الاستلام' : 
+                                      paymentMethod === 'instapay' ? 'انستا باي' : 'المحافظ الإلكترونية';
+
             const orderDetails = {
                 items: currentCart,
                 total: calculateSubtotal(currentCart) + SHIPPING_FEES,
                 shippingInfo,
+                paymentMethod: paymentMethodText,
                 status: 'قيد المراجعة',
                 timestamp: new Date().toISOString()
             };
@@ -1020,6 +1104,30 @@
             }
         };
 
+        const setupPaymentMethods = () => {
+            const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
+            const instapayDetails = getElement('instapay-details');
+            const ewalletDetails = getElement('ewallet-details');
+            
+            paymentMethods.forEach(method => {
+                method.addEventListener('change', (e) => {
+                    document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('payment-option-selected'));
+                    e.target.closest('.payment-option').classList.add('payment-option-selected');
+
+                    if (instapayDetails) instapayDetails.style.display = 'none';
+                    if (ewalletDetails) ewalletDetails.style.display = 'none';
+                    
+                    if (e.target.value === 'instapay' && instapayDetails) {
+                        instapayDetails.style.display = 'block';
+                    } else if (e.target.value === 'ewallet' && ewalletDetails) {
+                        ewalletDetails.style.display = 'block';
+                    }
+                });
+            });
+            // Initial selection style
+            document.querySelector('input[name="payment-method"]:checked').closest('.payment-option').classList.add('payment-option-selected');
+        };
+
         // Event Listeners
         document.querySelectorAll('.nav-icon').forEach(icon => {
             icon.addEventListener('click', (e) => {
@@ -1027,7 +1135,6 @@
                 if (id === 'nav-logout-icon') {
                     signOut(auth).then(() => {
                         showToast("تم تسجيل الخروج.");
-                        // onAuthStateChanged will handle the rest
                     });
                 } else {
                     const tabId = id.replace('nav-', '').replace('-icon', '') + '-tab';
@@ -1058,6 +1165,10 @@
             getElement('auth-title').textContent = isHidden ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
         });
 
+        // Initialize payment method logic
+        setupPaymentMethods();
+
     </script>
 </body>
 </html>
+
