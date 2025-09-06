@@ -239,7 +239,7 @@
             cursor: pointer;
             margin-top: 10px;
             font-size: 0.9rem;
-            transition: background-color 0.3s;
+            transition: background-color 极速3s;
             width: 100%;
         }
         
@@ -257,7 +257,7 @@
         .product-card .product-name {
             font-size: 0.95rem;
             font-weight: 500;
-            margin: 0 0 10px 0;
+            margin: 极速0 0 10px 0;
             line-height: 1.3;
         }
         
@@ -297,7 +297,7 @@
         .payment-details {
             padding: 15px;
             background-color: #f8f9fa;
-            border-radius: 8px;
+           极速 border-radius: 8px;
             margin-top: 10px;
             display: none;
         }
@@ -381,7 +381,7 @@
             flex: 1;
         }
         
-        .btn-secondary {
+极速 .btn-secondary {
             background: #6c757d;
             color: white;
         }
@@ -450,8 +450,8 @@
             <div class="tooltip">الرئيسية</div>
         </div>
         
-        <div class="nav-icon" id="nav-auth-icon" title="تسجيل الدخول">
-            <i class="fas fa-user"></i>
+        <div class="nav-icon"极速 id="nav-auth-icon" title="تسجيل الدخول">
+            <i class="fas极速 fa-user"></i>
             <div class="tooltip">تسجيل الدخول</div>
         </div>
         
@@ -471,7 +471,7 @@
             <div class="tooltip">صفحتي</div>
         </div>
         
-        <div class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style="display: none;">
+        <div class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style极速="display: none;">
             <i class="fas fa-sign-out-alt"></i>
             <div class="tooltip">تسجيل الخروج</div>
         </div>
@@ -499,7 +499,7 @@
 
                 <div id="registration-fields" style="display:none;">
                     <hr style="margin: 20px 0;">
-                    <input type="text" id="signup-name" placeholder="الاسم الكامل" required autocomplete="off">
+                    <input type="text" id="sign极速up-name" placeholder="الاسم الكامل" required autocomplete="off">
                     <input type="tel" id="signup-phone" placeholder="رقم الهاتف" required autocomplete="off">
                     <input type="text" id="signup-address" placeholder="عنوان المنزل" required autocomplete="off">
                 </div>
@@ -519,7 +519,7 @@
                     <p style="text-align: center;">سلة التسوق فارغة.</p>
                 </div>
                 <div id="cart-checkout-section" class="checkout-section hidden">
-                    <h3>ملخص الطلب</h3>
+                    <h3极速>ملخص الطلب</极速h3>
                     <div class="checkout-total-price-row">
                         <span>المجموع:</span>
                         <span id="cart-subtotal">0.00</span>
@@ -580,12 +580,12 @@
                         <input type="radio" name="payment-method" value="instapay" id="instapay-payment">
                         <label for="instapay-payment">
                             <i class="payment-icon fas fa-mobile-alt"></i>
-                            انستا باי
+                            انستا باي
                         </label>
                     </div>
                     
                     <div class="payment-option">
-                        <input type="radio" name="payment-method" value="ewallet" id="ewallet-payment">
+                        <input type="radio" name极速="payment-method" value="ewallet" id="ewallet-payment">
                         <label for="ewallet-payment">
                             <i class="payment-icon fas fa-wallet"></i>
                             المحافظ الإلكترونية
@@ -602,7 +602,7 @@
                         <p>بعد التحويل، يرجى إرسال إشعار الدفع عبر الواتساب إلى الرقم أعلاه.</p>
                     </div>
                     
-                    <div id="ewallet-details" class="payment-details">
+                    <div id="ewallet-details" class极速="payment-details">
                         <h4>الدفع عبر المحافظ الإلكترونية</h4>
                         <p>يرجى التواصل مع الإدارة على الرقم <strong>+1234567890</strong> عبر الواتساب لإتمام عملية الدفع عبر المحافظ الإلكترونية.</p>
                         <p>سيقوم ممخدمنا بتزويدك برابط الدفع أو معلومات التحويل اللازمة.</p>
@@ -630,7 +630,7 @@
             </div>
 
             <div style="background: white; padding: 20px; border-radius: 8px;">
-                <h3>طلباتي</h3>
+                <极速h3>طلباتي</h3>
                 <div id="orders-list">
                     <p style="text-align: center;">جاري تحميل الطلبات...</p>
                 </div>
@@ -646,13 +646,13 @@
         import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCfOzC8gkqkVSNZ3frtnnCMxbeq-v7yaTY",
+            apiKey: "AIzaSyCfOzC8gkqkVSN极速Z3frtnnCMxbeq-v7yaTY",
             authDomain: "almas-store-a51eb.firebaseapp.com",
             databaseURL: "https://almas-store-a51eb-default-rtdb.firebaseio.com",
             projectId: "almas-store-a51eb",
             storageBucket: "almas-store-a51eb.appspot.com",
             messagingSenderId: "502522968593",
-            appId: "1:502522968593:web:52dc253f8ea12f4d5bcfb0",
+            appId: "1:502522968593:web:52dc253f8ea12f4极速d5bcfb0",
             measurementId: "G-G0WC9BJ6JW"
         };
 
@@ -668,42 +668,53 @@
         let categories = {};
         let currentCart = {};
         let isSearching = false;
+        let navTimeout;
 
+        // DOM Elements with null checks
+        const getElement = (id) => document.getElementById(id) || null;
+        
         const elements = {
-            userName: document.getElementById('user-name'),
-            adminLink: document.getElementById('admin-link'),
-            homeContent: document.getElementById('home-content'),
-            cartItemsContainer: document.getElementById('cart-items'),
-            cartCheckoutSection: document.getElementById('cart-checkout-section'),
-            cartCount: document.getElementById('cart-count'),
-            cartSubtotal: document.getElementById('cart-subtotal'),
-            cartTotal: document.getElementById('cart-total'),
-            ordersList: document.getElementById('orders-list'),
-            checkoutSummary: document.getElementById('checkout-summary'),
-            checkoutSubtotal: document.getElementById('checkout-subtotal'),
-            checkoutTotalFinal: document.getElementById('checkout-total-final'),
-            toast: document.getElementById('toast'),
-            searchInput: document.getElementById('search-input'),
-            categoryFilter: document.getElementById('category-filter'),
-            gotoCheckoutBtn: document.getElementById('goto-checkout-btn'),
-            placeOrderBtn: document.getElementById('place-order-btn'),
-            tabLinks: document.querySelectorAll('.tab-link'),
-            tabContents: document.querySelectorAll('.tab-content'),
+            userName: getElement('user-name'),
+            adminLink: getElement('admin-link'),
+            homeContent: getElement('home-content'),
+            cartItemsContainer: getElement('cart-items'),
+            cartCheckoutSection: getElement('cart-checkout-section'),
+            cartCount: getElement('cart-count'),
+            cartSubtotal: getElement('cart-subtotal'),
+            cartTotal: getElement('cart-total'),
+            ordersList: getElement('orders-list'),
+            checkoutSummary: getElement('checkout-summary'),
+            checkoutSubtotal: getElement('checkout-subtotal'),
+            checkoutTotalFinal: getElement('checkout-total-final'),
+            toast: getElement('toast'),
+            searchInput: getElement('search-input'),
+            categoryFilter: getElement('category-filter'),
+            gotoCheckoutBtn: getElement('goto-checkout-btn'),
+            placeOrderBtn: getElement('place-order-btn'),
             nav: {
-                home: document.getElementById('nav-home'),
-                auth: document.getElementById('nav-auth'),
-                cart: document.getElementById('nav-cart'),
-                checkout: document.getElementById('nav-checkout'),
-                profile: document.getElementById('nav-profile'),
-                logout: document.getElementById('nav-logout'),
+                home: getElement('nav-home'),
+                auth: getElement('nav-auth'),
+                cart: getElement('nav-cart'),
+                checkout: getElement('nav-checkout'),
+                profile: getElement('nav-profile'),
+                logout: getElement('nav-logout'),
+            }
+        };
+
+        // Helper function to safely add event listeners
+        const safeAddEventListener = (element, event, handler) => {
+            if (element) {
+                element.addEventListener(event, handler);
             }
         };
 
         const showToast = (message, isSuccess = true) => {
-            elements.toast.textContent = message;
-            elements.toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
-            elements.toast.classList.add('show');
-            setTimeout(() => elements.toast.classList.remove('show'), 3000);
+            if (elements.toast) {
+                elements.toast.textContent = message;
+                elements.toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
+                elements.toast.classList.add('show');
+                setTimeout(() => elements.toast.classList.remove('show'), 3000);
+            }
         };
 
         const formatPrice = (price) => parseFloat(price).toFixed(2);
@@ -712,15 +723,31 @@
         const formatDate = (timestamp) => timestamp ? new Date(timestamp).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : 'غير محدد';
 
         const showTab = (targetId) => {
-            elements.tabContents.forEach(content => content.classList.remove('active'));
-            elements.tabLinks.forEach(link => link.classList.remove('active'));
-            document.getElementById(targetId).classList.add('active');
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            const targetTab = getElement(targetId);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Update navigation highlights
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
             const navLink = document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`);
-            if (navLink) navLink.classList.add('active');
+            if (navLink) {
+                navLink.classList.add('active');
+            }
         };
 
-        elements.tabLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
+        // Add event listeners to tab links safely
+        document.querySelectorAll('.tab-link').forEach(link => {
+            safeAddEventListener(link, 'click', (e) => {
                 const targetId = e.target.id.replace('nav-', '') + '-tab';
                 if (targetId === 'logout-tab') return;
                 showTab(targetId);
@@ -737,7 +764,7 @@
             } else {
                 currentUserId = null;
                 isAdmin = false;
-                updateUIForUserType();
+                updateUI极速ForUserType();
                 showTab('auth-tab');
             }
             if (allProducts.length === 0) loadProducts();
@@ -748,17 +775,25 @@
 
         const updateUIForUserType = () => {
             const loggedIn = !!currentUserId;
-            elements.nav.auth.style.display = loggedIn ? 'none' : 'block';
-            elements.nav.logout.style.display = loggedIn ? 'block' : 'none';
-            elements.nav.profile.style.display = loggedIn ? 'block' : 'none';
-            elements.adminLink.style.display = isAdmin ? 'block' : 'none';
+            
+            // Safely update navigation elements
+            if (elements.nav.auth) elements.nav.auth.style.display = loggedIn ? 'none' : 'block';
+            if (elements.nav.logout) elements.nav.logout.style.display = loggedIn ? 'block' : 'none';
+            if (elements.nav.profile) elements.nav.profile.style.display = loggedIn ? 'block' : 'none';
+            if (elements.adminLink) elements.adminLink.style.display = isAdmin ? 'block' : 'none';
 
-            document.getElementById('nav-auth-icon').style.display = loggedIn ? 'none' : 'flex';
-            document.getElementById('nav-logout-icon').style.display = loggedIn ? 'flex' : 'none';
-            document.getElementById('nav-profile-icon').style.display = loggedIn ? 'flex' : 'none';
-            document.getElementById('nav-checkout-icon').style.display = (loggedIn && Object.keys(currentCart).length > 0) ? 'flex' : 'none';
+            // Safely update floating nav icons
+            const authIcon = getElement('nav-auth-icon');
+            const logoutIcon = getElement('nav-logout-icon');
+            const profileIcon = getElement('nav-profile-icon');
+            const checkoutIcon = getElement('nav-checkout-icon');
+            
+            if (authIcon) authIcon.style.display = loggedIn ? 'none' : 'flex';
+            if (logoutIcon) logoutIcon.style.display = loggedIn ? 'flex' : 'none';
+            if (profileIcon) profileIcon.style.display = loggedIn ? 'flex' : 'none';
+            if (checkoutIcon) checkoutIcon.style.display = (loggedIn && Object.keys(currentCart).length > 0) ? 'flex' : 'none';
 
-            if (!loggedIn) {
+            if (elements.userName && !loggedIn) {
                 elements.userName.textContent = 'زائر';
             }
         };
@@ -768,15 +803,20 @@
             const userRef = ref(database, `users/${currentUserId}/profile`);
             onValue(userRef, snapshot => {
                 const data = snapshot.val();
-                if (data) {
+                if (data && elements.userName) {
                     elements.userName.textContent = data.name;
                     ['name', 'email', 'phone', 'address'].forEach(field => {
-                        const el = document.getElementById(`profile-${field}`);
+                        const el = getElement(`profile-${field}`);
                         if (el) el.textContent = data[field] || auth.currentUser.email;
                     });
-                    document.getElementById('shipping-name').value = data.name;
-                    document.getElementById('shipping-phone').value = data.phone;
-                    document.getElementById('shipping-address').value = data.address;
+                    
+                    const shippingName = getElement('shipping-name');
+                    const shippingPhone = getElement('shipping-phone');
+                    const shippingAddress = getElement('shipping-address');
+                    
+                    if (shippingName) shippingName.value = data.name;
+                    if (shippingPhone) shippingPhone.value = data.phone;
+                    if (shippingAddress) shippingAddress.value = data.address;
                 }
             });
         };
@@ -788,7 +828,9 @@
                 onValue(ref(database, `users/${currentUserId}/cart`), snapshot => {
                     currentCart = snapshot.val() || {};
                     renderCart(currentCart);
-                    elements.nav.checkout.style.display = Object.keys(currentCart).length > 0 ? 'block' : 'none';
+                    if (elements.nav.checkout) {
+                        elements.nav.checkout.style.display = Object.keys(currentCart).length > 0 ? 'block' : 'none';
+                    }
                 });
                 onValue(ref(database, `users/${currentUserId}/orders`), snapshot => renderUserOrders(snapshot.val() || {}));
             }
@@ -819,24 +861,26 @@
                 if (cachedProducts) {
                     allProducts = JSON.parse(cachedProducts);
                     processProducts();
-                } else {
+                } else if (elements.homeContent) {
                     elements.homeContent.innerHTML = "<p>عفواً، حدث خطأ أثناء تحميل المنتجات.</p>";
                 }
             }
         };
 
         const processProducts = () => {
-            categories = allProducts.reduce((acc, p) => {
+            categories = allProducts.reduce((acc, p极速) => {
                 const cat = p.category || 'غير مصنف';
-                if (!acc[cat]) acc[cat] = [];
+                if (!acc[cat]) acc极速[cat] = [];
                 acc[cat].push(p);
                 return acc;
             }, {});
 
-            elements.categoryFilter.innerHTML = '<option value="all">كل الفئات</option>' + 
-                Object.keys(categories).sort().map(cat => 
-                    `<option value="${cat}">${cat}</option>`
-                ).join('');
+            if (elements.categoryFilter) {
+                elements.categoryFilter.innerHTML = '<option value="all">كل الفئات</option>' + 
+                    Object.keys(categories).sort().map(cat => 
+                        `<option value="${cat}">${cat}</option>`
+                    ).join('');
+            }
             renderHomePage();
         };
 
@@ -847,8 +891,10 @@
         };
 
         const renderHomePage = () => {
-            const category = elements.categoryFilter.value;
-            const searchTerm = elements.searchInput.value.toLowerCase();
+            if (!elements.homeContent) return;
+            
+            const category = elements.categoryFilter ? elements.categoryFilter.value : 'all';
+            const searchTerm = elements.searchInput ? elements.searchInput.value.toLowerCase() : '';
             
             // إذا كان هناك بحث، نعرض نتائج البحث فقط
             if (searchTerm) {
@@ -915,7 +961,7 @@
                     <h4>${product.name}</h4>
                     <p><span class="product-sku">الكود:</span> ${product.sku}</p>
                     <p><span class="product-sku">الباركود:</span> ${product['barcode 1']}</p>
-                    <p class="product-price">${formatPrice(product.price)} جنيه</p>
+                    <p class="product-price">${formatPrice(product.price)} جنيه</极速p>
                     <button class="view-details-btn">تفاصيل المنتج</button>
                 </div>
                 <div class="product-info">
@@ -924,7 +970,7 @@
                 </div>
             `;
             
-            card.addEventListener('click', (e) => {
+            safeAddEventListener(card, 'click', (e) => {
                 if (e.target.classList.contains('view-details-btn')) {
                     return;
                 }
@@ -938,7 +984,7 @@
             });
             
             const viewDetailsBtn = card.querySelector('.view-details-btn');
-            viewDetailsBtn.addEventListener('click', (e) => {
+            safeAddEventListener(viewDetailsBtn, 'click', (e) => {
                 e.stopPropagation();
                 showProductDetails(product);
             });
@@ -970,15 +1016,16 @@
             
             document.body.appendChild(overlay);
             
-            document.getElementById('close-details').addEventListener('click', () => {
+            safeAddEventListener(getElement('close-details'), 'click', () => {
                 document.body.removeChild(overlay);
             });
             
-            document.querySelector('.modal-close').addEventListener('click', () => {
+            const modalClose = overlay.querySelector('.modal-close');
+            safeAddEventListener(modalClose, 'click', () => {
                 document.body.removeChild(overlay);
             });
             
-            document.getElementById('add-to-cart-from-details').addEventListener('click', () => {
+            safeAddEventListener(getElement('add-to-cart-from-details'), 'click', () => {
                 if (isAdmin) {
                     showToast("المديرون لا يمكنهم الشراء.", false);
                     return;
@@ -994,7 +1041,7 @@
                 showToast(`تمت إضافة ${product.name} إلى السلة.`);
             });
             
-            overlay.addEventListener('click', (e) => {
+            safeAddEventListener(overlay, 'click', (e) => {
                 if (e.target === overlay) {
                     document.body.removeChild(overlay);
                 }
@@ -1021,26 +1068,31 @@
         };
 
         const renderCart = (cartItems) => {
+            if (!elements.cartItemsContainer) return;
+            
             const itemCount = Object.keys(cartItems).length;
             elements.cartItemsContainer.innerHTML = '';
 
             if (itemCount === 0) {
                 elements.cartItemsContainer.innerHTML = '<p style="text-align: center;">سلة التسوق فارغة.</p>';
-                elements.cartCheckoutSection.classList.add('hidden');
+                if (elements.cartCheckoutSection) elements.cartCheckoutSection.classList.add('hidden');
             } else {
                 Object.entries(cartItems).forEach(([sku, product]) => {
                     elements.cartItemsContainer.appendChild(createCartItemElement(product, sku));
                 });
-                elements.cartCheckoutSection.classList.remove('hidden');
+                if (elements.cartCheckoutSection) elements.cartCheckoutSection.classList.remove('hidden');
             }
 
-            elements.cartCount.textContent = itemCount;
-            document.getElementById('cart-icon-count').textContent = itemCount;
-            document.getElementById('nav-checkout-icon').style.display = (currentUserId && itemCount > 0) ? 'flex' : 'none';
+            if (elements.cartCount) elements.cartCount.textContent = itemCount;
+            const cartIconCount = getElement('cart-icon-count');
+            if (cartIconCount) cartIconCount.textContent = itemCount;
+            
+            const checkoutIcon = getElement('nav-checkout-icon');
+            if (checkoutIcon) checkoutIcon.style.display = (currentUserId && itemCount > 0) ? 'flex' : 'none';
             
             const subtotal = calculateSubtotal(cartItems);
-            elements.cartSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
-            elements.cartTotal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
+            if (elements.cartSubtotal) elements.cartSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
+            if (elements.cartTotal) elements.cartTotal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
             renderCheckoutPage(cartItems);
         };
 
@@ -1050,7 +1102,7 @@
             
             itemEl.innerHTML = `
                 <div class="cart-item-info">
-                    <p class="cart-item-name">${product.name}</p>
+                    <p class极速="cart-item-name">${product.name}</p>
                     <p class="cart-item-price">${formatPrice(product.price)} جنيه</p>
                     <div class="cart-item-quantity">
                         <button class="quantity-btn decrease-btn">-</button>
@@ -1061,31 +1113,35 @@
                 <button class="cart-item-remove">&times;</button>
             `;
             
-            itemEl.querySelector('.decrease-btn').addEventListener('click', () => updateCartItemQuantity(sku, product.quantity - 1));
-            itemEl.querySelector('.increase-btn').addEventListener('click', () => updateCartItemQuantity(sku, product.quantity + 1));
-            itemEl.querySelector('.cart-item-remove').addEventListener('click', () => removeFromCart(sku));
+            safeAddEventListener(itemEl.querySelector('.decrease-btn'), 'click', () => updateCartItemQuantity(sku, product.quantity - 1));
+            safeAddEventListener(itemEl.querySelector('.increase-btn'), 'click', () => updateCartItemQuantity(sku, product.quantity + 1));
+            safeAddEventListener(itemEl.querySelector('.cart-item-remove'), 'click', () => removeFromCart(sku));
             
             return itemEl;
         };
 
         const renderCheckoutPage = (cartItems) => {
+            if (!elements.checkoutSummary) return;
+            
             elements.checkoutSummary.innerHTML = '';
             Object.values(cartItems).forEach(product => {
                 elements.checkoutSummary.innerHTML += `
                     <div class="cart-item" style="box-shadow: none; padding: 5px;">
                         <div class="cart-item-info">
                             <p class="cart-item-name">${product.name}</p>
-                            <p class="cart-item-price">${formatPrice(product.price)} جنيه x ${product.quantity || 1}</p>
+                            <极速p class="cart-item-price">${formatPrice(product.price)} جنيه x ${product.quantity || 1}</p>
                         </div>
                     </div>`;
             });
             
             const subtotal = calculateSubtotal(cartItems);
-            elements.checkoutSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
-            elements.checkoutTotalFinal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
+            if (elements.checkoutSubtotal) elements.checkoutSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
+            if (elements.checkoutTotalFinal) elements.checkoutTotalFinal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
         };
 
         const renderUserOrders = (orders) => {
+            if (!elements.ordersList) return;
+            
             elements.ordersList.innerHTML = '';
             const ordersArray = Object.entries(orders).map(([id, order]) => ({ id, ...order }));
 
@@ -1098,7 +1154,7 @@
 
             ordersArray.forEach(order => {
                 const orderEl = createOrderCard(order, false);
-                elements.ordersList.appendChild(orderEl);
+                elements.ordersList.appendChild(order极速El);
             });
         };
 
@@ -1116,7 +1172,7 @@
 
             const progressHTML = order.status !== 'ملغي' ? `<div class="order-progress">
                 ${progressSteps.map((label, i) => `
-                    <div class="progress-step ${statusIndex >= i ? 'completed' : ''} ${statusIndex === i ? 'active' : ''}">
+                    <div class="progress-step ${statusIndex >= i ? 'completed' : ''} ${status极速Index === i ? 'active' : ''}">
                         <div class="progress-step-icon">${i+1}</div>
                         <div class="progress-step-label">${label}</div>
                     </div>
@@ -1140,15 +1196,15 @@
                 </div>
                 <p><strong>الإجمالي:</strong> ${formatPrice(order.total)} جنيه</p>
                 <button class="order-details-toggle">عرض التفاصيل</button>
-                <div class="order-items-details hidden">
+                <div class="order-items极速-details hidden">
                     <h4>المنتجات</h4>
-                    ${orderItemsHTML}
+                    ${order极速ItemsHTML}
                 </div>
                 ${progressHTML}
                 ${userActionsHTML}
             `;
 
-            orderEl.querySelector('.order-details-toggle').addEventListener('click', (e) => {
+            safeAddEventListener(orderEl.querySelector('.order-details-toggle'), 'click', (e) => {
                 const details = e.target.nextElementSibling;
                 details.classList.toggle('hidden');
                 e.target.textContent = details.classList.contains('hidden') ? 'عرض التفاصيل' : 'إخفاء التفاصيل';
@@ -1156,7 +1212,7 @@
 
             const cancelBtn = orderEl.querySelector('.cancel-order-btn');
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', () => {
+                safeAddEventListener(cancelBtn, 'click', () => {
                     if(confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟')) {
                         updateOrderStatus(currentUserId, order.id, 'ملغي');
                     }
@@ -1200,17 +1256,17 @@
             }
 
             const shippingInfo = {
-                name: document.getElementById('shipping-name').value,
-                address: document.getElementById('shipping-address').value,
-                phone: document.getElementById('shipping-phone').value,
-                city: document.getElementById('shipping-city').value
+                name: getElement('shipping-name') ? getElement('shipping-name').value : '',
+                address: getElement('shipping-address') ? getElement('shipping-address').value : '',
+                phone: getElement('shipping-phone') ? getElement('shipping-phone').value : '',
+                city: getElement('shipping-city') ? getElement('shipping-city').value : ''
             };
 
             if (Object.values(shippingInfo).some(val => !val)) {
                 return showToast("الرجاء تعبئة جميع معلومات الشحن.", false);
             }
 
-            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'cash';
             let paymentStatus = 'قيد المراجعة';
             
             if (paymentMethod !== 'cash') {
@@ -1240,17 +1296,17 @@
             }
         };
 
-        const handleLogin = () => signInWithEmailAndPassword(auth, document.getElementById('auth-email').value, document.getElementById('auth-password').value)
+        const handleLogin = () => signInWithEmailAndPassword(auth, getElement('auth-email')?.value || '', getElement('auth-password')?.value || '')
             .then(() => showToast('تم تسجيل الدخول بنجاح!'))
             .catch(err => showToast(`خطأ: ${err.message}`, false));
 
         const handleSignup = async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
+            const email = getElement('auth-email')?.value || '';
+            const password = getElement('auth-password')?.value || '';
             const profile = {
-                name: document.getElementById('signup-name').value,
-                phone: document.getElementById('signup-phone').value,
-                address: document.getElementById('signup-address').value,
+                name: getElement('signup-name')?.value || '',
+                phone: getElement('signup-phone')?.value || '',
+                address: getElement('signup-address')?.value || '',
                 email: email
             };
 
@@ -1268,22 +1324,24 @@
         };
 
         const handlePasswordChange = async () => {
-            const newPassword = document.getElementById('new-password').value;
+            const newPassword = getElement('new-password')?.value || '';
             if (!newPassword || newPassword.length < 6) {
                 return showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.', false);
             }
             try {
                 await updatePassword(auth.currentUser, newPassword);
                 showToast('تم تغيير كلمة المرور بنجاح!');
-                document.getElementById('new-password').value = '';
+                if (getElement('new-password')) getElement('new-password').value = '';
             } catch (error) {
                 showToast(`خطأ: ${error.message}`, false);
             }
         };
 
         const setupFloatingNav = () => {
-            const floatingNav = document.getElementById('floating-nav');
-            const mainHeader = document.getElementById('main-header');
+            const floatingNav = getElement('floating-nav');
+            const mainHeader = getElement('main-header');
+            
+            if (!floatingNav || !mainHeader) return;
             
             document.addEventListener('mousemove', (e) => {
                 if (e.clientY < 100) {
@@ -1304,7 +1362,7 @@
             window.addEventListener('scroll', () => {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                if (scrollTop > lastScrollTop && scroll极速Top > 100) {
                     floatingNav.classList.add('hidden');
                     mainHeader.classList.add('hidden');
                 } else {
@@ -1327,63 +1385,79 @@
                 lastScrollTop = scrollTop;
             });
             
-            document.getElementById('nav-home-icon').addEventListener('click', () => showTab('home-tab'));
-            document.getElementById('nav-auth-icon').addEventListener('click', () => showTab('auth-tab'));
-            document.getElementById('nav-cart-icon').addEventListener('click', () => showTab('cart-tab'));
-            document.getElementById('nav-checkout-icon').addEventListener('click', () => showTab('checkout-tab'));
-            document.getElementById('nav-profile-icon').addEventListener('click', () => showTab('profile-tab'));
-            document.getElementById('nav-logout-icon').addEventListener('click', () => {
+            safeAddEventListener(getElement('nav-home-icon'), 'click', () => showTab('home-tab'));
+            safeAddEventListener(getElement('nav-auth-icon'), 'click', () => showTab('auth-tab'));
+            safeAddEventListener(getElement('nav-cart-icon'), 'click极速', () => showTab('cart极速-tab'));
+            safeAddEventListener(getElement('nav-checkout-icon'), 'click', () => showTab('checkout-tab'));
+            safeAddEventListener(getElement('nav-profile-icon'), 'click', () => showTab('profile-tab'));
+            safeAddEventListener(getElement('nav-logout-icon'), 'click', () => {
                 signOut(auth).then(() => showToast("تم تسجيل الخروج."));
             });
         };
         
         const setupPaymentMethods = () => {
             const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
-            const instapayDetails = document.getElementById('instapay-details');
-            const ewalletDetails = document.getElementById('ewallet-details');
+            const instapayDetails = getElement('instapay-details');
+            const ewalletDetails = getElement('ewallet-details');
             
             paymentMethods.forEach(method => {
-                method.addEventListener('change', (e) => {
-                    instapayDetails.style.display = 'none';
-                    ewalletDetails.style.display = 'none';
+                safeAddEventListener(method, 'change', (e) => {
+                    if (instapayDetails) instapayDetails.style.display = 'none';
+                    if (ewalletDetails) ewalletDetails.style.display = 'none';
                     
-                    if (e.target.value === 'instapay') {
+                    if (e.target.value === 'instapay' && instapayDetails) {
                         instapayDetails.style.display = 'block';
-                    } else if (e.target.value === 'ewallet') {
+                    } else if (e.target.value === 'ewallet' && ewalletDetails) {
                         ewalletDetails.style.display = 'block';
                     }
                 });
             });
         };
 
-        document.getElementById('login-btn').addEventListener('click', handleLogin);
-        document.getElementById('signup-btn').addEventListener('click', handleSignup);
-        document.getElementById('toggle-signup').addEventListener('click', () => {
-            const regFields = document.getElementById('registration-fields');
-            const isHidden = regFields.style.display === 'none';
-            regFields.style.display = isHidden ? 'block' : 'none';
-            document.getElementById('login-btn').style.display = isHidden ? 'none' : 'block';
-            document.getElementById('signup-btn').style.display = isHidden ? 'block' : 'none';
-            document.getElementById('toggle-signup').textContent = isHidden ? 'العودة لتسجيل الدخول' : 'إنشاء حساب جديد';
-        });
+        // Add event listeners safely
+        safeAddEventListener(getElement('login-btn'), 'click', handleLogin);
+        safeAddEventListener(getElement('signup-btn'), 'click', handleSignup);
+        
+        const toggleSignupBtn = getElement('toggle-signup');
+        if (toggleSignupBtn) {
+            toggleSignupBtn.addEventListener('click', () => {
+                const regFields = getElement('registration-fields');
+                if (!regFields) return;
+                
+                const isHidden = regFields.style.display === 'none';
+                regFields.style.display = isHidden ? 'block' : 'none';
+                
+                const loginBtn = getElement('login-btn');
+                const signupBtn = getElement('signup-btn');
+                
+                if (loginBtn) loginBtn.style.display = isHidden ? 'none' : 'block';
+                if (signupBtn) signupBtn.style.display = isHidden ? 'block' : 'none';
+                if (toggleSignupBtn) toggleSignupBtn.textContent = isHidden ? 'العودة لتسجيل الدخول' : 'إنشاء حساب جديد';
+            });
+        }
 
-        document.getElementById('change-password-btn').addEventListener('click', handlePasswordChange);
-        elements.nav.logout.addEventListener('click', () => signOut(auth).then(() => showToast("تم تسجيل الخروج.")));
-        elements.gotoCheckoutBtn.addEventListener('click', () => showTab('checkout-tab'));
-        elements.placeOrderBtn.addEventListener('click', handlePlaceOrder);
+        safeAddEventListener(getElement('change-password-btn'), 'click', handlePasswordChange);
+        
+        const logoutBtn = elements.nav.logout;
+        if (logoutBtn) {
+            safeAddEventListener(logoutBtn, 'click', () => signOut(auth).then(() => showToast("تم تسجيل الخروج.")));
+        }
+        
+        safeAddEventListener(getElement('goto-checkout-btn'), 'click', () => showTab('checkout-tab'));
+        safeAddEventListener(getElement('place-order-btn'), 'click', handlePlaceOrder);
         
         // أحداث البحث والتصفية
-        elements.searchInput.addEventListener('input', () => {
+        safeAddEventListener(getElement('search-input'), 'input', () => {
             renderHomePage();
         });
         
-        elements.categoryFilter.addEventListener('change', () => {
+        safeAddEventListener(getElement('category-filter'), 'change', () => {
             renderHomePage();
         });
 
         // إعادة تحميل عشوائي كل 5 دقائق
         setInterval(() => {
-            if (!isSearching && !elements.searchInput.value) {
+            if (!isSearching && (!elements.searchInput || !elements.searchInput.value)) {
                 renderHomePage();
             }
         }, 5 * 60 * 1000);
