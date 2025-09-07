@@ -3,147 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>متجري العصري - المتجر</title>
+    <title>Apples Mart</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #007185;
-            --secondary-color: #FF9900;
-            --background-color: #EAEDED;
+            --primary-color: #2A7F8D;
+            --secondary-color: #FFB703;
+            --background-color: #F8F9FA;
             --card-background: #FFFFFF;
-            --text-color: #0F1111;
+            --text-color: #212529;
+            --header-bg: #1E2A3A;
             --success-color: #28a745;
             --danger-color: #dc3545;
-            --warning-color: #ffc107;
             --info-color: #17a2b8;
-            --disabled-color: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Cairo', sans-serif;
             margin: 0;
             background-color: var(--background-color);
             color: var(--text-color);
-            padding-top: 70px;
+            padding-top: 80px; /* Adjusted for fixed header */
         }
 
         header {
-            background-color: #131921;
+            background-color: var(--header-bg);
             color: white;
             padding: 10px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        
-        header.hidden {
-            transform: translateY(-100%);
-        }
-        
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        
+
         header h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             margin: 0;
+            color: var(--secondary-color);
         }
-        
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .floating-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: opacity 0.3s ease;
+        #user-name {
+            font-weight: 500;
         }
-        
-        .floating-nav.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .nav-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
+
+        #admin-link {
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            position: relative;
+            background: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
         }
-        
-        .nav-icon:hover {
-            transform: scale(1.1);
+
+        #admin-link:hover {
             background-color: var(--secondary-color);
         }
-        
+
+        nav {
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-icon {
+            color: white;
+            background-color: transparent;
+            border: none;
+            font-size: 1.2rem;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background-color: var(--primary-color);
+        }
+
         .nav-icon .badge {
             position: absolute;
-            top: -5px;
-            left: -5px;
+            top: 0;
+            right: 0;
             background-color: var(--secondary-color);
-            color: white;
+            color: var(--header-bg);
             border-radius: 50%;
             width: 20px;
             height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
-        }
-        
-        .nav-icon .tooltip {
-            position: absolute;
-            right: 60px;
-            background-color: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .nav-icon:hover .tooltip {
-            opacity: 1;
         }
 
         main {
             padding: 20px;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: auto;
         }
 
         .tab-content {
             display: none;
         }
-        
+
         .tab-content.active {
             display: block;
         }
@@ -153,279 +139,439 @@
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
-        
+
         .toolbar input, .toolbar select {
             flex-grow: 1;
             padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .toolbar input:focus, .toolbar select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(42, 127, 141, 0.25);
         }
 
         .category-section {
             background: var(--card-background);
             padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-        
+
         .category-section h2 {
             margin-top: 0;
+            margin-bottom: 20px;
             font-size: 1.8rem;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            display: inline-block;
         }
-        
+
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(2, auto);
+            grid-auto-columns: 120px; /* تم التصغير إلى 60% من 200px */
+            overflow-x: auto;
+            overflow-y: hidden;
+            gap: 15px;
+            padding-bottom: 20px; /* For scrollbar visibility */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--background-color);
+        }
+
+        .category-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+        .category-grid::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 4px;
+        }
+        .category-grid::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 4px;
         }
 
         .product-card {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             background-color: var(--card-background);
-            cursor: pointer;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
             height: 100%;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        .product-details {
-            padding: 15px;
-            background-color: #f8f9fa;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .product-details h4 {
-            margin: 0 0 10px 0;
-            color: var(--primary-color);
-            font-size: 1.1rem;
-            line-height: 1.3;
-        }
-        
-        .product-details p {
-            margin: 5px 0;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        
-        .product-sku {
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-        
-        .view-details-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            transition: background-color 3s;
-            width: 100%;
-        }
-        
-        .view-details-btn:hover {
-            background-color: #005f6b;
-        }
-        
-        .product-card .product-info {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .product-card .product-name {
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin: 0 0 10px 0;
-            line-height: 1.3;
-        }
-        
-        .product-card .product-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #B12704;
-            margin: 0;
+            width: 120px; /* تم التصغير إلى 60% من 200px */
         }
 
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-card-content {
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--primary-color);
+            font-size: 0.9rem; /* تم تصغير الخط */
+            line-height: 1.3;
+            flex-grow: 1;
+        }
+
+        .product-card .product-sku {
+            font-size: 0.75rem; /* تم تصغير الخط */
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .product-card .product-price {
+            font-size: 1rem; /* تم تصغير الخط */
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .product-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .product-card-actions button {
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 0.8rem; /* تم تصغير الخط */
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .add-to-cart-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .add-to-cart-btn:hover {
+            background-color: #226874;
+        }
+
+        .details-btn {
+            background-color: var(--card-background);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        .details-btn:hover {
+            background-color: #f0f8ff;
+        }
+
+        /* Form & Auth & Checkout Styles */
+        .form-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 25px;
+            background: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-container h2, .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #226874;
+        }
+
+        /* Cart & Checkout Specific */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-name { font-weight: bold; }
+        .cart-item-price { color: #6c757d; }
+
+        .cart-item-quantity { display: flex; align-items: center; gap: 10px; }
+        .quantity-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            border: 1px solid var(--border-color); background: #fff;
+            cursor: pointer; font-size: 1.2rem;
+        }
+
+        .cart-item-remove {
+            background: none; border: none; color: var(--danger-color);
+            font-size: 1.5rem; cursor: pointer;
+        }
+
+        .checkout-section {
+            background: var(--card-background); padding: 20px;
+            border-radius: 12px; margin-bottom: 20px;
+        }
+
+        .checkout-total-price-row, .checkout-final-total {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; font-size: 1.1rem;
+        }
+        .checkout-final-total { font-weight: bold; font-size: 1.3rem; }
+
+        #goto-checkout-btn, #place-order-btn {
+            background-color: var(--secondary-color);
+            color: var(--header-bg);
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #goto-checkout-btn:hover, #place-order-btn:hover {
+            background-color: #d99c02;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Payment Method Styles */
         .payment-option {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
-        
-        .payment-option:hover {
+        .payment-option:hover, .payment-option-selected {
             border-color: var(--primary-color);
-            background-color: #f8f9fa;
+            background-color: #f0f8ff;
         }
-        
         .payment-option input[type="radio"] {
-            margin-left: 10px;
+            width: auto;
+            margin-bottom: 0;
+            margin-left: 15px;
         }
-        
         .payment-icon {
             font-size: 1.5rem;
             margin-left: 15px;
             color: var(--primary-color);
         }
-        
         .payment-details {
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: #f0f8ff;
             border-radius: 8px;
             margin-top: 10px;
+            border: 1px solid var(--primary-color);
             display: none;
         }
-        
         .qr-code {
             text-align: center;
             margin: 15px 0;
         }
-        
         .qr-code img {
-            max-width: 200px;
+            max-width: 180px;
             border: 1px solid #ddd;
             padding: 10px;
             background: white;
         }
-        
+
+        /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background-color: #333;
             color: #fff;
-            padding: 16px;
-            border-radius: 4px;
-            z-index: 1000;
+            padding: 16px 25px;
+            border-radius: 8px;
+            z-index: 2000;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-
         .toast.show {
             opacity: 1;
+            transform: translate(-50%, -10px);
         }
-        
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 3000;
             padding: 20px;
         }
-        
+
         .modal-content {
             background: white;
             padding: 25px;
-            border-radius: 8px;
+            border-radius: 12px;
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 10px;
-        }
-        
-        .modal-buttons button {
-            padding: 10px 15px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            flex: 1;
-        }
-        
- .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-primary {
-            background: var(--secondary-color);
-            color: white;
+            position: relative;
         }
 
-        .random-badge {
+        .modal-close {
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            z-index: 10;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
         }
 
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: none;
+            width: auto;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Order styles */
+        .order-card {
+            background: white; padding: 20px;
+            border-radius: 12px; margin-bottom: 15px;
+            border-left: 5px solid var(--info-color);
+            position: relative;
+        }
+        .order-card-cancelled { border-left-color: var(--danger-color); }
+        .order-card-header { display:flex; justify-content:space-between; align-items:center; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; color: white; font-size: 0.9rem; }
+        .status-pending { background-color: var(--secondary-color); color: var(--header-bg); }
+        .status-delivered { background-color: var(--success-color); }
+        .status-cancelled { background-color: var(--danger-color); }
+        
+        .cancel-order-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Order Details Styles */
+        .order-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .order-details h4 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        .order-details-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .category-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-            
-            .floating-nav {
-                bottom: 10px;
-                left: 10px;
-            }
-            
-            .nav-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
-            
-            .payment-details {
+            header {
+                flex-direction: column;
                 padding: 10px;
+                gap: 10px;
+                height: auto;
             }
-            
-            .qr-code img {
-                max-width: 150px;
+            body {
+                padding-top: 120px;
+            }
+            .header-left, .user-info, nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+            nav {
+                background-color: #2c3e50;
+                padding: 5px;
+                border-radius: 8px;
+                overflow-x: auto;
+            }
+            .nav-icon {
+                font-size: 1rem;
+                padding: 8px 10px;
+            }
+            .category-grid {
+                grid-auto-columns: 150px; /* تم التعديل ليتناسب مع الحجم الجديد */
+            }
+            .product-card {
+                width: 150px; /* تم التعديل ليتناسب مع الحجم الجديد */
             }
         }
     </style>
@@ -433,49 +579,26 @@
 <body>
 
     <header id="main-header">
-        <div class="header-top">
-            <h1>متجري العصري</h1>
+        <div class="header-center">
+            <h1>Apples Mart</h1>
             <div class="user-info">
-                <span id="user-name">زائر</span>
-                <a href="admin.html" id="admin-link" style="display: none; color: white; background: var(--secondary-color); padding: 5px 10px; border-radius: 4px; text-decoration: none;">
+                <span id="user-name"></span>
+                <a href="admin.html" id="admin-link" style="display: none;" title="لوحة التحكم">
                     <i class="fas fa-cog"></i>
                 </a>
             </div>
         </div>
+        <nav>
+            <button class="nav-icon active" id="nav-home-icon" title="الرئيسية"><i class="fas fa-home"></i></button>
+            <button class="nav-icon" id="nav-auth-icon" title="تسجيل الدخول"><i class="fas fa-user"></i></button>
+            <button class="nav-icon" id="nav-cart-icon" title="السلة">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="badge" id="cart-icon-count">0</div>
+            </button>
+            <button class="nav-icon" id="nav-profile-icon" title="صفحتي الشخصية" style="display: none;"><i class="fas fa-id-card"></i></button>
+            <button class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style="display: none;"><i class="fas fa-sign-out-alt"></i></button>
+        </nav>
     </header>
-
-    <div class="floating-nav" id="floating-nav">
-        <div class="nav-icon" id="nav-home-icon" title="الرئيسية">
-            <i class="fas fa-home"></i>
-            <div class="tooltip">الرئيسية</div>
-        </div>
-        
-        <div class="nav-icon" id="nav-auth-icon" title="تسجيل الدخول">
-            <i class="fas fa-user"></i>
-            <div class="tooltip">تسجيل الدخول</div>
-        </div>
-        
-        <div class="nav-icon" id="nav-cart-icon" title="السلة">
-            <i class="fas fa-shopping-cart"></i>
-            <div class="badge" id="cart-icon-count">0</div>
-            <div class="tooltip">السلة</div>
-        </div>
-        
-        <div class="nav-icon" id="nav-checkout-icon" title="الدفع" style="display: none;">
-            <i class="fas fa-money-bill-wave"></i>
-            <div class="tooltip">الدفع</div>
-        </div>
-        
-        <div class="nav-icon" id="nav-profile-icon" title="صفحتي الشخصية">
-            <i class="fas fa-id-card"></i>
-            <div class="tooltip">صفحتي</div>
-        </div>
-        
-        <div class="nav-icon" id="nav-logout-icon" title="تسجيل الخروج" style="display: none;">
-            <i class="fas fa-sign-out-alt"></i>
-            <div class="tooltip">تسجيل الخروج</div>
-        </div>
-    </div>
 
     <main>
         <div id="home-tab" class="tab-content active">
@@ -485,15 +608,14 @@
                     <option value="all">كل الفئات</option>
                 </select>
             </div>
-
             <div id="home-content">
                 <p style="text-align: center;">جاري تحميل المنتجات...</p>
             </div>
         </div>
 
         <div id="auth-tab" class="tab-content">
-             <div class="form-container">
-                <h2>تسجيل الدخول / إنشاء حساب</h2>
+            <div class="form-container">
+                <h2 id="auth-title">تسجيل الدخول</h2>
                 <input type="email" id="auth-email" placeholder="البريد الإلكتروني" required autocomplete="off">
                 <input type="password" id="auth-password" placeholder="كلمة المرور" required autocomplete="new-password">
 
@@ -505,24 +627,22 @@
                 </div>
 
                 <button id="login-btn">تسجيل الدخول</button>
-                <button id="toggle-signup" style="margin-top: 10px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;">إنشاء حساب جديد</button>
-                <button id="signup-btn" style="display: none; margin-top: 10px; background-color: var(--success-color);">إرسال طلب التسجيل</button>
-
-                <p id="auth-message" class="message"></p>
+                <button id="signup-btn" style="display: none; margin-top: 10px; background-color: var(--success-color);">إنشاء الحساب</button>
+                <button id="toggle-signup" style="margin-top: 10px; background-color: #f8f9fa; color: #333; border: 1px solid #ccc;">ليس لديك حساب؟ إنشاء حساب جديد</button>
             </div>
         </div>
 
         <div id="cart-tab" class="tab-content">
-            <div style="padding: 20px;">
+            <div class="checkout-section">
                 <h2>سلة التسوق</h2>
-                <div id="cart-items" class="item-list">
+                <div id="cart-items">
                     <p style="text-align: center;">سلة التسوق فارغة.</p>
                 </div>
-                <div id="cart-checkout-section" class="checkout-section hidden">
+                <div id="cart-checkout-section" class="hidden">
                     <h3>ملخص الطلب</h3>
                     <div class="checkout-total-price-row">
                         <span>المجموع:</span>
-                        <span id="cart-subtotal">0.00</span>
+                        <span id="cart-subtotal">0.00 جنيه</span>
                     </div>
                     <div class="checkout-total-price-row">
                         <span>مصاريف الشحن:</span>
@@ -531,108 +651,97 @@
                     <hr>
                     <div class="checkout-final-total">
                         <span>الإجمالي:</span>
-                        <span id="cart-total">30.00</span>
+                        <span id="cart-total">30.00 جنيه</span>
                     </div>
-                    <button id="goto-checkout-btn" class="checkout-btn">⚡️ إتمام الشراء</button>
+                    <button id="goto-checkout-btn">⚡️ إتمام الشراء</button>
                 </div>
             </div>
         </div>
 
         <div id="checkout-tab" class="tab-content">
-            <div style="padding: 20px;">
-                <h2>إتمام الشراء</h2>
-                <div class="checkout-section">
-                    <h3>ملخص الطلب</h3>
-                    <div id="checkout-summary" class="item-list">
-                    </div>
-                    <div class="checkout-total-price-row">
-                        <span>المجموع:</span>
-                        <span id="checkout-subtotal">0.00</span>
-                    </div>
-                    <div class="checkout-total-price-row">
-                        <span>مصاريف الشحن:</span>
-                        <span>30.00 جنيه</span>
-                    </div>
-                    <hr>
-                    <div class="checkout-final-total">
-                        <span>الإجمالي:</span>
-                        <span id="checkout-total-final">30.00</span>
-                    </div>
-                </div>
-                <div class="form-container" style="max-width: 100%; margin-top: 20px;">
+            <h2>إتمام الشراء</h2>
+            <div class="form-container" style="max-width: 100%;">
+                 <div class="checkout-section">
                     <h3>معلومات الشحن</h3>
-                    <input type="text" id="shipping-name" placeholder="الاسم الكامل" required autocomplete="off">
-                    <input type="text" id="shipping-address" placeholder="العنوان بالتفصيل" required autocomplete="off">
-                    <input type="tel" id="shipping-phone" placeholder="رقم الهاتف" required autocomplete="off">
-                    <input type="text" id="shipping-city" placeholder="المدينة / المنطقة" required autocomplete="off">
-
+                    <input type="text" id="shipping-name" placeholder="الاسم الكامل" required autocomplete="name">
+                    <input type="text" id="shipping-address" placeholder="العنوان بالتفصيل" required autocomplete="street-address">
+                    <input type="tel" id="shipping-phone" placeholder="رقم الهاتف" required autocomplete="tel">
+                    <input type="text" id="shipping-city" placeholder="المدينة / المنطقة" required autocomplete="address-level2">
+                </div>
+                <div class="checkout-section">
                     <h3>طريقة الدفع</h3>
-                    
                     <div class="payment-option">
                         <input type="radio" name="payment-method" value="cash" id="cash-payment" checked>
-                        <label for="cash-payment">
+                        <label for="cash-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
                             <i class="payment-icon fas fa-money-bill-wave"></i>
-                            الدفع عند الاستلام
+                            <span>الدفع عند الاستلام</span>
                         </label>
                     </div>
-                    
                     <div class="payment-option">
                         <input type="radio" name="payment-method" value="instapay" id="instapay-payment">
-                        <label for="instapay-payment">
+                        <label for="instapay-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
                             <i class="payment-icon fas fa-mobile-alt"></i>
-                            انستا باي
+                            <span>انستا باي</span>
                         </label>
                     </div>
-                    
                     <div class="payment-option">
                         <input type="radio" name="payment-method" value="ewallet" id="ewallet-payment">
-                        <label for="ewallet-payment">
+                         <label for="ewallet-payment" style="display: flex; align-items: center; width: 100%; cursor: pointer;">
                             <i class="payment-icon fas fa-wallet"></i>
-                            المحافظ الإلكترونية
+                            <span>المحافظ الإلكترونية</span>
                         </label>
                     </div>
-                    
                     <div id="instapay-details" class="payment-details">
                         <h4>الدفع عبر انستا باي</h4>
-                        <p>قم بمسح الكود QR أدناه أو استخدم رقم الهاتف للتحويل:</p>
+                        <p>قم بمسح الكود QR أدناه أو استخدم الرابط المباشر للتحويل:</p>
                         <div class="qr-code">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ipn.eg/S/ahmed79070/instapay/4DCcvb" alt="QR Code">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://ipn.eg/S/muhammadbarghouth/instapay/1JkJOQ" alt="QR Code">
                         </div>
-                        <p>رقم الهاتف: <strong>+201552402912</strong></p>
-                        <p>بعد التحويل، يرجى إرسال إشعار الدفع عبر الواتساب إلى الرقم أعلاه.</p>
+                        <p style="text-align: center;"><a href="https://ipn.eg/S/muhammadbarghouth/instapay/1JkJOQ" target="_blank">اضغط هنا لرابط دفع انستا باي مباشر</a></p>
+                        <p>بعد التحويل، يرجى إرسال إشعار الدفع عبر واتساب إلى الرقم: <strong>+201093208797</strong></p>
                     </div>
-                    
                     <div id="ewallet-details" class="payment-details">
                         <h4>الدفع عبر المحافظ الإلكترونية</h4>
-                        <p>يرجى التواصل مع الإدارة على الرقم <strong>+201552402912</strong> عبر الواتساب لإتمام عملية الدفع عبر المحافظ الإلكترونية.</p>
-                        <p>سيقوم ممخدمنا بتزويدك برابط الدفع أو معلومات التحويل اللازمة.</p>
+                        <p>يرجى التواصل مع الإدارة على الرقم <strong>+201093208797</strong> عبر واتساب لإتمام عملية الدفع عبر المحافظ الإلكترونية (فودافون كاش، اتصالات كاش، الخ).</p>
                     </div>
-
-                    <button id="place-order-btn" class="checkout-btn" style="margin-top: 20px;">تأكيد الطلب</button>
                 </div>
+                <div class="checkout-section">
+                    <h3>ملخص الطلب</h3>
+                    <div id="checkout-summary"></div>
+                    <div class="checkout-final-total">
+                        <span>الإجمالي للدفع:</span>
+                        <span id="checkout-total-final">30.00 جنيه</span>
+                    </div>
+                </div>
+                <button id="place-order-btn">تأكيد الطلب</button>
             </div>
         </div>
 
         <div id="profile-tab" class="tab-content">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+             <div class="checkout-section">
                 <h3>معلومات الحساب</h3>
                 <p><strong>الاسم:</strong> <span id="profile-name"></span></p>
                 <p><strong>البريد الإلكتروني:</strong> <span id="profile-email"></span></p>
                 <p><strong>رقم الهاتف:</strong> <span id="profile-phone"></span></p>
                 <p><strong>العنوان:</strong> <span id="profile-address"></span></p>
             </div>
-
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h3>تغيير كلمة المرور</h3>
-                <input type="password" id="new-password" placeholder="كلمة المرور الجديدة" required autocomplete="new-password">
-                <button id="change-password-btn" style="width: auto; padding: 10px 20px; margin-top: 10px;">تغيير</button>
-                <p id="password-change-message" class="message"></p>
-            </div>
-
-            <div style="background: white; padding: 20px; border-radius: 8px;">
+            <div class="checkout-section">
                 <h3>طلباتي</h3>
                 <div id="orders-list">
                     <p style="text-align: center;">جاري تحميل الطلبات...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Confirmation Tab -->
+        <div id="order-confirmation-tab" class="tab-content">
+            <div class="checkout-section">
+                <h2>تم تأكيد طلبك بنجاح!</h2>
+                <div id="order-details-content">
+                    <p style="text-align: center;">جاري تحميل تفاصيل الطلب...</p>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="back-to-shopping" class="btn-primary">مواصلة التسوق</button>
                 </div>
             </div>
         </div>
@@ -642,7 +751,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -662,140 +771,64 @@
 
         const ADMIN_EMAIL = "admin@store.com";
         const SHIPPING_FEES = 30;
+        const CACHE_DURATION = 30 * 60 * 60 * 1000; // 30 ساعة بالميلي ثانية
+        const RANDOM_CATEGORIES_COUNT = 5; // عدد الفئات العشوائية
+        const CATEGORY_UPDATE_INTERVAL = 2 * 60 * 1000; // تحديث كل دقيقتين
+        
         let currentUserId = null;
         let isAdmin = false;
         let allProducts = [];
         let categories = {};
         let currentCart = {};
-        let isSearching = false;
-        let navTimeout;
+        let lastOrder = null;
+        let categoryUpdateTimer = null;
 
-        // DOM Elements with null checks
-        const getElement = (id) => document.getElementById(id) || null;
-        
-        const elements = {
-            userName: getElement('user-name'),
-            adminLink: getElement('admin-link'),
-            homeContent: getElement('home-content'),
-            cartItemsContainer: getElement('cart-items'),
-            cartCheckoutSection: getElement('cart-checkout-section'),
-            cartCount: getElement('cart-count'),
-            cartSubtotal: getElement('cart-subtotal'),
-            cartTotal: getElement('cart-total'),
-            ordersList: getElement('orders-list'),
-            checkoutSummary: getElement('checkout-summary'),
-            checkoutSubtotal: getElement('checkout-subtotal'),
-            checkoutTotalFinal: getElement('checkout-total-final'),
-            toast: getElement('toast'),
-            searchInput: getElement('search-input'),
-            categoryFilter: getElement('category-filter'),
-            gotoCheckoutBtn: getElement('goto-checkout-btn'),
-            placeOrderBtn: getElement('place-order-btn'),
-            nav: {
-                home: getElement('nav-home'),
-                auth: getElement('nav-auth'),
-                cart: getElement('nav-cart'),
-                checkout: getElement('nav-checkout'),
-                profile: getElement('nav-profile'),
-                logout: getElement('nav-logout'),
-            }
-        };
-
-        // Helper function to safely add event listeners
-        const safeAddEventListener = (element, event, handler) => {
-            if (element) {
-                element.addEventListener(event, handler);
-            }
-        };
+        const getElement = (id) => document.getElementById(id);
 
         const showToast = (message, isSuccess = true) => {
-            if (elements.toast) {
-                elements.toast.textContent = message;
-                elements.toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545';
-                elements.toast.classList.add('show');
-                setTimeout(() => elements.toast.classList.remove('show'), 3000);
-            }
+            const toast = getElement('toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.style.backgroundColor = isSuccess ? 'var(--success-color)' : 'var(--danger-color)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        };
+
+        const showTab = (targetId) => {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const targetTab = getElement(targetId);
+            if (targetTab) targetTab.classList.add('active');
+
+            document.querySelectorAll('.nav-icon').forEach(link => link.classList.remove('active'));
+            const navLink = getElement(`nav-${targetId.replace('-tab', '')}-icon`);
+            if (navLink) navLink.classList.add('active');
         };
 
         const formatPrice = (price) => parseFloat(price).toFixed(2);
         const calculateSubtotal = (items) => Object.values(items).reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-        const calculateTotal = (items) => calculateSubtotal(items) + SHIPPING_FEES;
-        const formatDate = (timestamp) => timestamp ? new Date(timestamp).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : 'غير محدد';
-
-        const showTab = (targetId) => {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Show the selected tab content
-            const targetTab = getElement(targetId);
-            if (targetTab) {
-                targetTab.classList.add('active');
-            }
-            
-            // Update navigation highlights
-            document.querySelectorAll('.tab-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            const navLink = document.querySelector(`[id="nav-${targetId.replace('-tab', '')}"]`);
-            if (navLink) {
-                navLink.classList.add('active');
-            }
-        };
-
-        // Add event listeners to tab links safely
-        document.querySelectorAll('.tab-link').forEach(link => {
-            safeAddEventListener(link, 'click', (e) => {
-                const targetId = e.target.id.replace('nav-', '') + '-tab';
-                if (targetId === 'logout-tab') return;
-                showTab(targetId);
-            });
-        });
 
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
                 isAdmin = user.email === ADMIN_EMAIL;
-                updateUIForUserType();
                 loadUserData();
                 setupDatabaseListeners();
             } else {
                 currentUserId = null;
                 isAdmin = false;
-                updateUIForUserType();
-                showTab('auth-tab');
+                getElement('user-name').textContent = ' ';
+                showTab('home-tab');
             }
-            if (allProducts.length === 0) loadProducts();
-            
-            setTimeout(setupFloatingNav, 100);
-            setTimeout(setupPaymentMethods, 100);
+            updateUIForUserType();
+            loadProducts();
         });
 
         const updateUIForUserType = () => {
             const loggedIn = !!currentUserId;
-            
-            // Safely update navigation elements
-            if (elements.nav.auth) elements.nav.auth.style.display = loggedIn ? 'none' : 'block';
-            if (elements.nav.logout) elements.nav.logout.style.display = loggedIn ? 'block' : 'none';
-            if (elements.nav.profile) elements.nav.profile.style.display = loggedIn ? 'block' : 'none';
-            if (elements.adminLink) elements.adminLink.style.display = isAdmin ? 'block' : 'none';
-
-            // Safely update floating nav icons
-            const authIcon = getElement('nav-auth-icon');
-            const logoutIcon = getElement('nav-logout-icon');
-            const profileIcon = getElement('nav-profile-icon');
-            const checkoutIcon = getElement('nav-checkout-icon');
-            
-            if (authIcon) authIcon.style.display = loggedIn ? 'none' : 'flex';
-            if (logoutIcon) logoutIcon.style.display = loggedIn ? 'flex' : 'none';
-            if (profileIcon) profileIcon.style.display = loggedIn ? 'flex' : 'none';
-            if (checkoutIcon) checkoutIcon.style.display = (loggedIn && Object.keys(currentCart).length > 0) ? 'flex' : 'none';
-
-            if (elements.userName && !loggedIn) {
-                elements.userName.textContent = 'زائر';
-            }
+            getElement('nav-auth-icon').style.display = loggedIn ? 'none' : 'block';
+            getElement('nav-logout-icon').style.display = loggedIn ? 'block' : 'none';
+            getElement('nav-profile-icon').style.display = loggedIn ? 'block' : 'none';
+            getElement('admin-link').style.display = isAdmin ? 'block' : 'none';
         };
 
         const loadUserData = () => {
@@ -803,66 +836,54 @@
             const userRef = ref(database, `users/${currentUserId}/profile`);
             onValue(userRef, snapshot => {
                 const data = snapshot.val();
-                if (data && elements.userName) {
-                    elements.userName.textContent = data.name;
+                if (data) {
+                    getElement('user-name').textContent = data.name;
                     ['name', 'email', 'phone', 'address'].forEach(field => {
                         const el = getElement(`profile-${field}`);
-                        if (el) el.textContent = data[field] || auth.currentUser.email;
+                        if (el) el.textContent = data[field] || (field === 'email' ? auth.currentUser.email : '');
                     });
-                    
-                    const shippingName = getElement('shipping-name');
-                    const shippingPhone = getElement('shipping-phone');
-                    const shippingAddress = getElement('shipping-address');
-                    
-                    if (shippingName) shippingName.value = data.name;
-                    if (shippingPhone) shippingPhone.value = data.phone;
-                    if (shippingAddress) shippingAddress.value = data.address;
+
+                    // Autofill checkout form
+                    getElement('shipping-name').value = data.name || '';
+                    getElement('shipping-phone').value = data.phone || '';
+                    getElement('shipping-address').value = data.address || '';
                 }
-            });
+            }, { onlyOnce: true });
         };
 
         const setupDatabaseListeners = () => {
-            if (!currentUserId) return;
-
-            if (!isAdmin) {
-                onValue(ref(database, `users/${currentUserId}/cart`), snapshot => {
-                    currentCart = snapshot.val() || {};
-                    renderCart(currentCart);
-                    if (elements.nav.checkout) {
-                        elements.nav.checkout.style.display = Object.keys(currentCart).length > 0 ? 'block' : 'none';
-                    }
-                });
-                onValue(ref(database, `users/${currentUserId}/orders`), snapshot => renderUserOrders(snapshot.val() || {}));
-            }
+            if (!currentUserId || isAdmin) return;
+            onValue(ref(database, `users/${currentUserId}/cart`), snapshot => {
+                currentCart = snapshot.val() || {};
+                renderCart(currentCart);
+            });
+            onValue(ref(database, `users/${currentUserId}/orders`), snapshot => renderUserOrders(snapshot.val() || {}));
         };
 
         const loadProducts = async () => {
-            const cachedProducts = localStorage.getItem('cachedProducts');
-            const cacheTimestamp = localStorage.getItem('cacheTimestamp');
-            const now = new Date().getTime();
-            const oneWeek = 7 * 24 * 60 * 60 * 1000; // تخزين لمدة أسبوع
-
-            if (cachedProducts && cacheTimestamp && now - cacheTimestamp < oneWeek) {
-                allProducts = JSON.parse(cachedProducts);
+            // التحقق من وجود بيانات مخزنة في الكاش
+            const cachedData = localStorage.getItem('productsCache');
+            const cacheTime = localStorage.getItem('productsCacheTime');
+            
+            if (cachedData && cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION) {
+                // استخدام البيانات المخزنة إذا كانت حديثة
+                allProducts = JSON.parse(cachedData);
                 processProducts();
-                return;
-            }
-
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/masyomas/almas/main/products.json');
-                if (!response.ok) throw new Error('Failed to load products');
-                allProducts = await response.json();
-                
-                localStorage.setItem('cachedProducts', JSON.stringify(allProducts));
-                localStorage.setItem('cacheTimestamp', now.toString());
-                
-                processProducts();
-            } catch (error) {
-                if (cachedProducts) {
-                    allProducts = JSON.parse(cachedProducts);
+                showToast("تم تحميل المنتجات من الذاكرة المؤقتة");
+            } else {
+                // تحميل البيانات من الموقع إذا انتهت صلاحية الكاش
+                try {
+                    const response = await fetch('https://raw.githubusercontent.com/masyomas/almas/main/products.json');
+                    if (!response.ok) throw new Error('Failed to load products');
+                    allProducts = await response.json();
+                    
+                    // تخزين البيانات في الكاش
+                    localStorage.setItem('productsCache', JSON.stringify(allProducts));
+                    localStorage.setItem('productsCacheTime', Date.now().toString());
+                    
                     processProducts();
-                } else if (elements.homeContent) {
-                    elements.homeContent.innerHTML = "<p>عفواً، حدث خطأ أثناء تحميل المنتجات.</p>";
+                } catch (error) {
+                    getElement('home-content').innerHTML = "<p>عفواً، حدث خطأ أثناء تحميل المنتجات.</p>";
                 }
             }
         };
@@ -875,106 +896,122 @@
                 return acc;
             }, {});
 
-            if (elements.categoryFilter) {
-                elements.categoryFilter.innerHTML = '<option value="all">كل الفئات</option>' + 
-                    Object.keys(categories).sort().map(cat => 
-                        `<option value="${cat}">${cat}</option>`
-                    ).join('');
-            }
-            renderHomePage();
+            const categoryFilter = getElement('category-filter');
+            categoryFilter.innerHTML = '<option value="all">كل الفئات</option>' +
+                Object.keys(categories).sort().map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+            // بدء عرض الفئات العشوائية
+            showRandomCategories();
+            
+            // إعداد مؤقت لتحديث الفئات العشوائية كل دقيقتين
+            if (categoryUpdateTimer) clearInterval(categoryUpdateTimer);
+            categoryUpdateTimer = setInterval(showRandomCategories, CATEGORY_UPDATE_INTERVAL);
         };
 
-        const getRandomCategories = () => {
-            const categoryKeys = Object.keys(categories);
-            const shuffled = [...categoryKeys].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, 5); // 5 فئات عشوائية
+        const showRandomCategories = () => {
+            const homeContent = getElement('home-content');
+            const categoryFilterValue = getElement('category-filter').value;
+            const searchTerm = getElement('search-input').value.toLowerCase();
+
+            homeContent.innerHTML = '';
+
+            // إذا كان هناك بحث أو فلتر، نعرض النتائج العادية
+            if (categoryFilterValue !== 'all' || searchTerm) {
+                renderHomePage();
+                return;
+            }
+
+            // اختيار 5 فئات عشوائية
+            const allCategoryKeys = Object.keys(categories);
+            const randomCategories = [];
+            
+            // التأكد من عدم تكرار الفئات
+            while (randomCategories.length < RANDOM_CATEGORIES_COUNT && randomCategories.length < allCategoryKeys.length) {
+                const randomIndex = Math.floor(Math.random() * allCategoryKeys.length);
+                const randomCategory = allCategoryKeys[randomIndex];
+                
+                if (!randomCategories.includes(randomCategory)) {
+                    randomCategories.push(randomCategory);
+                }
+            }
+
+            let foundProducts = false;
+            randomCategories.forEach(cat => {
+                const products = categories[cat].filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm)
+                );
+
+                if (products.length > 0) {
+                    foundProducts = true;
+                    const section = document.createElement('div');
+                    section.className = 'category-section';
+                    section.innerHTML = `<h2>${cat}</h2><div class="category-grid"></div>`;
+                    const grid = section.querySelector('.category-grid');
+                    
+                    // عرض 10 منتجات عشوائية من كل فئة
+                    const shuffledProducts = [...products].sort(() => 0.5 - Math.random());
+                    const selectedProducts = shuffledProducts.slice(0, 10);
+                    
+                    selectedProducts.forEach(p => grid.appendChild(createProductCard(p)));
+                    homeContent.appendChild(section);
+                }
+            });
+
+            if (!foundProducts) {
+                homeContent.innerHTML = '<p style="text-align: center;">لم يتم العثور على منتجات تطابق بحثك.</p>';
+            }
         };
 
         const renderHomePage = () => {
-            if (!elements.homeContent) return;
-            
-            const category = elements.categoryFilter ? elements.categoryFilter.value : 'all';
-            const searchTerm = elements.searchInput ? elements.searchInput.value.toLowerCase() : '';
-            
-            // إذا كان هناك بحث، نعرض نتائج البحث فقط
-            if (searchTerm) {
-                isSearching = true;
-                let filteredProducts = allProducts.filter(p =>
-                    (category === 'all' || p.category === category) &&
-                    (p.name.toLowerCase().includes(searchTerm) || 
-                     (p.category && p.category.toLowerCase().includes(searchTerm)))
+            const homeContent = getElement('home-content');
+            const categoryFilterValue = getElement('category-filter').value;
+            const searchTerm = getElement('search-input').value.toLowerCase();
+
+            homeContent.innerHTML = '';
+
+            let filteredCategories = Object.keys(categories);
+            if (categoryFilterValue !== 'all') {
+                filteredCategories = [categoryFilterValue];
+            }
+
+            let foundProducts = false;
+            filteredCategories.forEach(cat => {
+                const products = categories[cat].filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || p.sku.toLowerCase().includes(searchTerm)
                 );
 
-                elements.homeContent.innerHTML = '';
-                if (filteredProducts.length === 0) {
-                    elements.homeContent.innerHTML = '<p style="text-align: center;">لم يتم العثور على منتجات.</p>';
-                    return;
-                }
-
-                const productsByCategory = filteredProducts.reduce((acc, p) => {
-                    const cat = p.category || 'غير مصنف';
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(p);
-                    return acc;
-                }, {});
-
-                Object.entries(productsByCategory).forEach(([cat, products]) => {
+                if (products.length > 0) {
+                    foundProducts = true;
                     const section = document.createElement('div');
                     section.className = 'category-section';
                     section.innerHTML = `<h2>${cat}</h2><div class="category-grid"></div>`;
                     const grid = section.querySelector('.category-grid');
                     products.forEach(p => grid.appendChild(createProductCard(p)));
-                    elements.homeContent.appendChild(section);
-                });
-            } else {
-                // إذا لم يكن هناك بحث، نعرض الفئات العشوائية
-                isSearching = false;
-                elements.homeContent.innerHTML = '';
-                
-                const randomCategories = getRandomCategories();
-                
-                if (randomCategories.length === 0) {
-                    elements.homeContent.innerHTML = '<p style="text-align: center;">لم يتم العثور على منتجات.</p>';
-                    return;
+                    homeContent.appendChild(section);
                 }
+            });
 
-                randomCategories.forEach(cat => {
-                    const products = categories[cat];
-                    if (products && products.length > 0) {
-                        const section = document.createElement('div');
-                        section.className = 'category-section';
-                        section.innerHTML = `<h2>${cat} <span class="random-badge">عشوائي</span></h2><div class="category-grid"></div>`;
-                        const grid = section.querySelector('.category-grid');
-                        products.forEach(p => grid.appendChild(createProductCard(p)));
-                        elements.homeContent.appendChild(section);
-                    }
-                });
+            if (!foundProducts) {
+                homeContent.innerHTML = '<p style="text-align: center;">لم يتم العثور على منتجات تطابق بحثك.</p>';
             }
         };
 
         const createProductCard = (product) => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            
             card.innerHTML = `
-                <div class="product-details">
+                <div class="product-card-content">
                     <h4>${product.name}</h4>
-                    <p><span class="product-sku">الكود:</span> ${product.sku}</p>
-                    <p><span class="product-sku">الباركود:</span> ${product['barcode 1']}</p>
+                    <p class="product-sku">الكود: ${product.sku}</p>
                     <p class="product-price">${formatPrice(product.price)} جنيه</p>
-                    <button class="view-details-btn">تفاصيل المنتج</button>
-                </div>
-                <div class="product-info">
-                    <p class="product-name">${product.name}</p>
-                    <p class="product-price">${formatPrice(product.price)} جنيه</p>
-                </div>
-            `;
-            
-            safeAddEventListener(card, 'click', (e) => {
-                if (e.target.classList.contains('view-details-btn')) {
-                    return;
-                }
-                
+                    <div class="product-card-actions">
+                         <button class="details-btn" data-sku="${product.sku}">التفاصيل</button>
+                         <button class="add-to-cart-btn" data-sku="${product.sku}"><i class="fas fa-cart-plus"></i></button>
+                    </div>
+                </div>`;
+
+            card.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (isAdmin) return showToast("المديرون لا يمكنهم الشراء.", false);
                 if (!currentUserId) {
                     showToast("الرجاء تسجيل الدخول أولاً.", false);
@@ -982,69 +1019,43 @@
                 }
                 addToCart(product.sku);
             });
-            
-            const viewDetailsBtn = card.querySelector('.view-details-btn');
-            safeAddEventListener(viewDetailsBtn, 'click', (e) => {
+
+            card.querySelector('.details-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 showProductDetails(product);
             });
-            
             return card;
         };
-        
+
         const showProductDetails = (product) => {
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
-            
             overlay.innerHTML = `
                 <div class="modal-content">
                     <button class="modal-close">&times;</button>
                     <h2>${product.name}</h2>
-                    <div style="margin: 20px 0;">
-                        <p><strong>الكود:</strong> ${product.sku}</p>
-                        <p><strong>الباركود:</strong> ${product['barcode 1']}</p>
-                        <p><strong>السعر:</strong> ${formatPrice(product.price)} جنيه</p>
-                        <p><strong>الفئة:</strong> ${product.category || 'غير مصنف'}</p>
-                        ${product.description ? `<p><strong>الوصف:</strong> ${product.description}</p>` : ''}
-                    </div>
+                    <p><strong>الكود:</strong> ${product.sku}</p>
+                    <p><strong>السعر:</strong> ${formatPrice(product.price)} جنيه</p>
+                    <p><strong>الفئة:</strong> ${product.category || 'غير مصنف'}</p>
                     <div class="modal-buttons">
-                        <button class="btn-secondary" id="close-details">إغلاق</button>
-                        <button class="btn-primary" id="add-to-cart-from-details">إضافة إلى السلة</button>
+                        <button class="btn-secondary">إغلاق</button>
+                        <button class="btn-primary"><i class="fas fa-cart-plus"></i> إضافة إلى السلة</button>
                     </div>
-                </div>
-            `;
-            
+                </div>`;
             document.body.appendChild(overlay);
-            
-            safeAddEventListener(getElement('close-details'), 'click', () => {
-                document.body.removeChild(overlay);
-            });
-            
-            const modalClose = overlay.querySelector('.modal-close');
-            safeAddEventListener(modalClose, 'click', () => {
-                document.body.removeChild(overlay);
-            });
-            
-            safeAddEventListener(getElement('add-to-cart-from-details'), 'click', () => {
-                if (isAdmin) {
-                    showToast("المديرون لا يمكنهم الشراء.", false);
-                    return;
-                }
+
+            const close = () => document.body.removeChild(overlay);
+            overlay.querySelector('.modal-close').addEventListener('click', close);
+            overlay.querySelector('.btn-secondary').addEventListener('click', close);
+            overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+            overlay.querySelector('.btn-primary').addEventListener('click', () => {
                 if (!currentUserId) {
                     showToast("الرجاء تسجيل الدخول أولاً.", false);
-                    document.body.removeChild(overlay);
                     showTab('auth-tab');
-                    return;
+                } else {
+                    addToCart(product.sku);
                 }
-                addToCart(product.sku);
-                document.body.removeChild(overlay);
-                showToast(`تمت إضافة ${product.name} إلى السلة.`);
-            });
-            
-            safeAddEventListener(overlay, 'click', (e) => {
-                if (e.target === overlay) {
-                    document.body.removeChild(overlay);
-                }
+                close();
             });
         };
 
@@ -1057,49 +1068,31 @@
             showToast(`تمت إضافة ${product.name} إلى السلة.`);
         };
 
-        const updateCartItemQuantity = (sku, newQuantity) => {
-            if (newQuantity <= 0) return removeFromCart(sku);
-            update(ref(database, `users/${currentUserId}/cart/${sku}`), { quantity: newQuantity });
-        };
-
-        const removeFromCart = (sku) => {
-            remove(ref(database, `users/${currentUserId}/cart/${sku}`));
-            showToast("تم حذف المنتج من السلة.");
-        };
-
         const renderCart = (cartItems) => {
-            if (!elements.cartItemsContainer) return;
-            
+            const cartItemsContainer = getElement('cart-items');
             const itemCount = Object.keys(cartItems).length;
-            elements.cartItemsContainer.innerHTML = '';
+            cartItemsContainer.innerHTML = '';
 
             if (itemCount === 0) {
-                elements.cartItemsContainer.innerHTML = '<p style="text-align: center;">سلة التسوق فارغة.</p>';
-                if (elements.cartCheckoutSection) elements.cartCheckoutSection.classList.add('hidden');
+                cartItemsContainer.innerHTML = '<p style="text-align: center;">سلة التسوق فارغة.</p>';
+                getElement('cart-checkout-section').classList.add('hidden');
             } else {
                 Object.entries(cartItems).forEach(([sku, product]) => {
-                    elements.cartItemsContainer.appendChild(createCartItemElement(product, sku));
+                    cartItemsContainer.appendChild(createCartItemElement(product, sku));
                 });
-                if (elements.cartCheckoutSection) elements.cartCheckoutSection.classList.remove('hidden');
+                getElement('cart-checkout-section').classList.remove('hidden');
             }
 
-            if (elements.cartCount) elements.cartCount.textContent = itemCount;
-            const cartIconCount = getElement('cart-icon-count');
-            if (cartIconCount) cartIconCount.textContent = itemCount;
-            
-            const checkoutIcon = getElement('nav-checkout-icon');
-            if (checkoutIcon) checkoutIcon.style.display = (currentUserId && itemCount > 0) ? 'flex' : 'none';
-            
+            getElement('cart-icon-count').textContent = itemCount;
             const subtotal = calculateSubtotal(cartItems);
-            if (elements.cartSubtotal) elements.cartSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
-            if (elements.cartTotal) elements.cartTotal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
+            getElement('cart-subtotal').textContent = formatPrice(subtotal) + ' جنيه';
+            getElement('cart-total').textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
             renderCheckoutPage(cartItems);
         };
 
         const createCartItemElement = (product, sku) => {
             const itemEl = document.createElement('div');
             itemEl.className = 'cart-item';
-            
             itemEl.innerHTML = `
                 <div class="cart-item-info">
                     <p class="cart-item-name">${product.name}</p>
@@ -1110,203 +1103,205 @@
                         <button class="quantity-btn increase-btn">+</button>
                     </div>
                 </div>
-                <button class="cart-item-remove">&times;</button>
-            `;
-            
-            safeAddEventListener(itemEl.querySelector('.decrease-btn'), 'click', () => updateCartItemQuantity(sku, product.quantity - 1));
-            safeAddEventListener(itemEl.querySelector('.increase-btn'), 'click', () => updateCartItemQuantity(sku, product.quantity + 1));
-            safeAddEventListener(itemEl.querySelector('.cart-item-remove'), 'click', () => removeFromCart(sku));
-            
+                <button class="cart-item-remove">&times;</button>`;
+
+            const updateQuantity = (newQuantity) => {
+                if (newQuantity <= 0) return remove(ref(database, `users/${currentUserId}/cart/${sku}`));
+                update(ref(database, `users/${currentUserId}/cart/${sku}`), { quantity: newQuantity });
+            };
+
+            itemEl.querySelector('.decrease-btn').addEventListener('click', () => updateQuantity(product.quantity - 1));
+            itemEl.querySelector('.increase-btn').addEventListener('click', () => updateQuantity(product.quantity + 1));
+            itemEl.querySelector('.cart-item-remove').addEventListener('click', () => remove(ref(database, `users/${currentUserId}/cart/${sku}`)));
+
             return itemEl;
         };
 
         const renderCheckoutPage = (cartItems) => {
-            if (!elements.checkoutSummary) return;
-            
-            elements.checkoutSummary.innerHTML = '';
-            Object.values(cartItems).forEach(product => {
-                elements.checkoutSummary.innerHTML += `
-                    <div class="cart-item" style="box-shadow: none; padding: 5px;">
-                        <div class="cart-item-info">
-                            <p class="cart-item-name">${product.name}</p>
-                            <p class="cart-item-price">${formatPrice(product.price)} جنيه x ${product.quantity || 1}</p>
-                        </div>
-                    </div>`;
+            const checkoutSummary = getElement('checkout-summary');
+            checkoutSummary.innerHTML = '';
+             Object.values(cartItems).forEach(product => {
+                checkoutSummary.innerHTML += `<p>${product.name} (×${product.quantity}) - ${formatPrice(product.price * product.quantity)} جنيه</p>`;
             });
-            
-            const subtotal = calculateSubtotal(cartItems);
-            if (elements.checkoutSubtotal) elements.checkoutSubtotal.textContent = formatPrice(subtotal) + ' جنيه';
-            if (elements.checkoutTotalFinal) elements.checkoutTotalFinal.textContent = formatPrice(subtotal + SHIPPING_FEES) + ' جنيه';
+            const total = calculateSubtotal(cartItems) + SHIPPING_FEES;
+            getElement('checkout-total-final').textContent = formatPrice(total) + ' جنيه';
         };
 
         const renderUserOrders = (orders) => {
-            if (!elements.ordersList) return;
-            
-            elements.ordersList.innerHTML = '';
+            const ordersList = getElement('orders-list');
+            ordersList.innerHTML = '';
             const ordersArray = Object.entries(orders).map(([id, order]) => ({ id, ...order }));
 
             if (ordersArray.length === 0) {
-                elements.ordersList.innerHTML = `<p style="text-align: center;">لا توجد طلبات.</p>`;
+                ordersList.innerHTML = `<p style="text-align: center;">لا توجد طلبات.</p>`;
                 return;
             }
 
             ordersArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            ordersArray.forEach(order => {
-                const orderEl = createOrderCard(order, false);
-                elements.ordersList.appendChild(orderEl);
-            });
+            ordersArray.forEach(order => ordersList.appendChild(createOrderCard(order)));
         };
 
-        const createOrderCard = (order, isAdminView) => {
+        const createOrderCard = (order) => {
             const orderEl = document.createElement('div');
+            const statusMap = {
+                'قيد المراجعة': 'status-pending',
+                'تم التسليم': 'status-delivered',
+                'ملغي': 'status-cancelled'
+            };
             orderEl.className = `order-card ${order.status === 'ملغي' ? 'order-card-cancelled' : ''}`;
-
-            const orderItemsHTML = `<ul>${Object.values(order.items || {}).map(item =>
-                `<li><span>${item.name} (×${item.quantity})</span> <span>${formatPrice(item.price * item.quantity)} جنيه</span></li>`
-            ).join('')}</ul>`;
-
-            const statusClass = getStatusClass(order.status);
-            const statusIndex = getStatusIndex(order.status);
-            const progressSteps = ['قيد المراجعة', 'تم الدفع', 'قيد التجهيز', 'قيد التوصيل', 'تم التسليم'];
-
-            const progressHTML = order.status !== 'ملغي' ? `<div class="order-progress">
-                ${progressSteps.map((label, i) => `
-                    <div class="progress-step ${statusIndex >= i ? 'completed' : ''} ${statusIndex === i ? 'active' : ''}">
-                        <div class="progress-step-icon">${i+1}</div>
-                        <div class="progress-step-label">${label}</div>
-                    </div>
-                `).join('')}
-            </div>` : '';
-
-            let userActionsHTML = '';
-            if (!isAdminView && order.status !== 'ملغي' && order.status !== 'تم التسليم') {
-                userActionsHTML = `<div class="order-card-actions">
-                    <button class="btn-danger cancel-order-btn">إلغاء الطلب</button>
-                </div>`;
-            }
-
+            
+            // التحقق إذا كان يمكن إلغاء الطلب (خلال 5 دقائق من الطلب)
+            const orderTime = new Date(order.timestamp);
+            const currentTime = new Date();
+            const canCancel = (currentTime - orderTime) < (5 * 60 * 1000) && order.status === 'قيد المراجعة';
+            
             orderEl.innerHTML = `
                 <div class="order-card-header">
                     <div>
-                        <h4>طلب #${(order.id || '').substring(0, 8)}</h4>
-                        <p>${formatDate(order.timestamp)}</p>
+                        <h4>طلب بتاريخ ${new Date(order.timestamp).toLocaleDateString('ar-EG')}</h4>
+                        <p><strong>الإجمالي:</strong> ${formatPrice(order.total)} جنيه</p>
+                        <p><strong>طريقة الدفع:</strong> ${order.paymentMethod || 'الدفع عند الاستلام'}</p>
+                        ${canCancel ? `<button class="cancel-order-btn" data-orderid="${order.id}">إلغاء الطلب</button>` : ''}
                     </div>
-                    <span class="status-badge ${statusClass}">${order.status}</span>
+                    <span class="status-badge ${statusMap[order.status] || 'status-pending'}">${order.status}</span>
                 </div>
-                <p><strong>الإجمالي:</strong> ${formatPrice(order.total)} جنيه</p>
-                <button class="order-details-toggle">عرض التفاصيل</button>
-                <div class="order-items-details hidden">
-                    <h4>المنتجات</h4>
-                    ${orderItemsHTML}
-                </div>
-                ${progressHTML}
-                ${userActionsHTML}
-            `;
-
-            safeAddEventListener(orderEl.querySelector('.order-details-toggle'), 'click', (e) => {
-                const details = e.target.nextElementSibling;
-                details.classList.toggle('hidden');
-                e.target.textContent = details.classList.contains('hidden') ? 'عرض التفاصيل' : 'إخفاء التفاصيل';
-            });
-
-            const cancelBtn = orderEl.querySelector('.cancel-order-btn');
-            if (cancelBtn) {
-                safeAddEventListener(cancelBtn, 'click', () => {
-                    if(confirm('هل أنت متأكد من رغبتك في إلغاء هذا الطلب؟')) {
-                        updateOrderStatus(currentUserId, order.id, 'ملغي');
-                    }
+                <div class="order-details">
+                    <h4>تفاصيل الطلب</h4>
+                    ${Object.values(order.items || {}).map(item => `
+                        <div class="order-details-item">
+                            <span>${item.name} (×${item.quantity})</span>
+                            <span>${formatPrice(item.price * item.quantity)} جنيه</span>
+                        </div>
+                    `).join('')}
+                    <div class="order-details-item">
+                        <span>مصاريف الشحن</span>
+                        <span>${SHIPPING_FEES}.00 جنيه</span>
+                    </div>
+                    <div class="order-details-item" style="font-weight: bold; border-top: 1px solid #ddd; padding-top: 8px;">
+                        <span>المجموع</span>
+                        <span>${formatPrice(order.total)} جنيه</span>
+                    </div>
+                </div>`;
+                
+            // إضافة حدث إلغاء الطلب إذا كان مسموحاً
+            if (canCancel) {
+                orderEl.querySelector('.cancel-order-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    cancelOrder(order.id);
                 });
             }
-
+            
             return orderEl;
         };
 
-        const getStatusClass = (status) => {
-            const map = {
-                'قيد المراجعة': 'status-pending', 'تم تأكيد الدفع': 'status-confirmed',
-                'قيد التجهيز': 'status-preparing', 'قيد التوصيل': 'status-delivering',
-                'تم التسليم': 'status-delivered', 'ملغي': 'status-cancelled'
-            };
-            return map[status] || '';
-        };
-
-        const getStatusIndex = (status) => {
-            const map = {
-                'قيد المراجعة': 0, 'تم تأكيد الدفع': 1, 'قيد التجهيز': 2,
-                'قيد التوصيل': 3, 'تم التسليم': 4, 'ملغي': -1
-            };
-            return map[status] ?? 0;
-        };
-
-        const updateOrderStatus = async (userId, orderId, newStatus) => {
-            const orderRef = ref(database, `users/${userId}/orders/${orderId}`);
+        const cancelOrder = async (orderId) => {
+            if (!confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return;
+            
             try {
-                await update(orderRef, { status: newStatus });
-                showToast(`تم تحديث حالة الطلب إلى: ${newStatus}`);
+                await update(ref(database, `users/${currentUserId}/orders/${orderId}`), {
+                    status: 'ملغي',
+                    cancelledAt: new Date().toISOString()
+                });
+                showToast('تم إلغاء الطلب بنجاح');
             } catch (error) {
-                showToast(`خطأ: ${error.message}`, false);
+                showToast('حدث خطأ أثناء إلغاء الطلب', false);
             }
+        };
+
+        const showOrderConfirmation = (order) => {
+            const orderDetails = getElement('order-details-content');
+            orderDetails.innerHTML = `
+                <div class="order-details">
+                    <h3>رقم الطلب: ${order.id.substring(0, 8)}</h3>
+                    <p><strong>حالة الطلب:</strong> <span class="status-badge status-pending">قيد المراجعة</span></p>
+                    <p><strong>تاريخ الطلب:</strong> ${new Date(order.timestamp).toLocaleString('ar-EG')}</p>
+                    <p><strong>طريقة الدفع:</strong> ${order.paymentMethod}</p>
+                    <p><strong>عنوان الشحن:</strong> ${order.shippingInfo.address}, ${order.shippingInfo.city}</p>
+                    <p><strong>هاتف الاستلام:</strong> ${order.shippingInfo.phone}</p>
+                    
+                    <h4>المنتجات:</h4>
+                    ${Object.values(order.items).map(item => `
+                        <div class="order-details-item">
+                            <span>${item.name} (×${item.quantity})</span>
+                            <span>${formatPrice(item.price * item.quantity)} جنيه</span>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="order-details-item">
+                        <span>مصاريف الشحن</span>
+                        <span>${SHIPPING_FEES}.00 جنيه</span>
+                    </div>
+                    
+                    <div class="order-details-item" style="font-weight: bold; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px;">
+                        <span>المجموع الكلي</span>
+                        <span>${formatPrice(order.total)} جنيه</span>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 20px; font-weight: bold;">
+                    شكراً لطلبك! سيتم التواصل معك قريباً لتأكيد التفاصيل.
+                </p>`;
+            
+            showTab('order-confirmation-tab');
         };
 
         const handlePlaceOrder = async () => {
             if (Object.keys(currentCart).length === 0) {
-                showToast("سلة التسوق فارغة! لا يمكنك إتمام الشراء.", false);
-                return;
+                return showToast("سلة التسوق فارغة!", false);
             }
-
             const shippingInfo = {
-                name: getElement('shipping-name') ? getElement('shipping-name').value : '',
-                address: getElement('shipping-address') ? getElement('shipping-address').value : '',
-                phone: getElement('shipping-phone') ? getElement('shipping-phone').value : '',
-                city: getElement('shipping-city') ? getElement('shipping-city').value : ''
+                name: getElement('shipping-name').value,
+                address: getElement('shipping-address').value,
+                phone: getElement('shipping-phone').value,
+                city: getElement('shipping-city').value
             };
-
             if (Object.values(shippingInfo).some(val => !val)) {
                 return showToast("الرجاء تعبئة جميع معلومات الشحن.", false);
             }
 
             const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'cash';
-            let paymentStatus = 'قيد المراجعة';
-            
-            if (paymentMethod !== 'cash') {
-                paymentStatus = 'بانتظار التأكيد';
-            }
+            const paymentMethodText = paymentMethod === 'cash' ? 'الدفع عند الاستلام' : 
+                                      paymentMethod === 'instapay' ? 'انستا باي' : 'المحافظ الإلكترونية';
 
             const orderDetails = {
                 items: currentCart,
-                subtotal: calculateSubtotal(currentCart),
-                shippingFees: SHIPPING_FEES,
-                total: calculateTotal(currentCart),
-                shippingInfo: shippingInfo,
-                paymentMethod: paymentMethod === 'cash' ? 'الدفع عند الاستلام' : 
-                              paymentMethod === 'instapay' ? 'انستا باي' : 'المحافظ الإلكترونية',
-                status: paymentStatus,
+                total: calculateSubtotal(currentCart) + SHIPPING_FEES,
+                shippingInfo,
+                paymentMethod: paymentMethodText,
+                status: 'قيد المراجعة',
                 timestamp: new Date().toISOString()
             };
 
-            const newOrderRef = push(ref(database, `users/${currentUserId}/orders`));
             try {
+                const newOrderRef = push(ref(database, `users/${currentUserId}/orders`));
                 await set(newOrderRef, orderDetails);
+                
+                // حفظ معرف الطلب الجديد في كائن الطلب
+                orderDetails.id = newOrderRef.key;
+                lastOrder = orderDetails;
+                
                 await set(ref(database, `users/${currentUserId}/cart`), null);
-                showToast("تم تأكيد طلبك بنجاح!");
-                showTab('profile-tab');
+                showOrderConfirmation(orderDetails);
             } catch (error) {
                 showToast(`خطأ: ${error.message}`, false);
             }
         };
 
-        const handleLogin = () => signInWithEmailAndPassword(auth, getElement('auth-email')?.value || '', getElement('auth-password')?.value || '')
-            .then(() => showToast('تم تسجيل الدخول بنجاح!'))
-            .catch(err => showToast(`خطأ: ${err.message}`, false));
+        const handleLogin = () => {
+            signInWithEmailAndPassword(auth, getElement('auth-email').value, getElement('auth-password').value)
+            .then(() => {
+                showToast('تم تسجيل الدخول بنجاح!');
+                showTab('home-tab');
+            })
+            .catch(err => showToast(`خطأ في تسجيل الدخول: تأكد من بياناتك`, false));
+        };
 
         const handleSignup = async () => {
-            const email = getElement('auth-email')?.value || '';
-            const password = getElement('auth-password')?.value || '';
+            const email = getElement('auth-email').value;
+            const password = getElement('auth-password').value;
             const profile = {
-                name: getElement('signup-name')?.value || '',
-                phone: getElement('signup-phone')?.value || '',
-                address: getElement('signup-address')?.value || '',
+                name: getElement('signup-name').value,
+                phone: getElement('signup-phone').value,
+                address: getElement('signup-address').value,
                 email: email
             };
 
@@ -1318,93 +1313,25 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await set(ref(database, `users/${userCredential.user.uid}/profile`), profile);
                 showToast('تم إنشاء الحساب بنجاح!');
+                showTab('home-tab');
             } catch (error) {
-                showToast(`خطأ: ${error.message}`, false);
+                showToast(`خطأ في إنشاء الحساب: ${error.message}`, false);
             }
         };
 
-        const handlePasswordChange = async () => {
-            const newPassword = getElement('new-password')?.value || '';
-            if (!newPassword || newPassword.length < 6) {
-                return showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.', false);
-            }
-            try {
-                await updatePassword(auth.currentUser, newPassword);
-                showToast('تم تغيير كلمة المرور بنجاح!');
-                if (getElement('new-password')) getElement('new-password').value = '';
-            } catch (error) {
-                showToast(`خطأ: ${error.message}`, false);
-            }
-        };
-
-        const setupFloatingNav = () => {
-            const floatingNav = getElement('floating-nav');
-            const mainHeader = getElement('main-header');
-            
-            if (!floatingNav || !mainHeader) return;
-            
-            document.addEventListener('mousemove', (e) => {
-                if (e.clientY < 100) {
-                    floatingNav.classList.remove('hidden');
-                    mainHeader.classList.remove('hidden');
-                    
-                    clearTimeout(navTimeout);
-                    navTimeout = setTimeout(() => {
-                        if (window.pageYOffset > 100) {
-                            floatingNav.classList.add('hidden');
-                            mainHeader.classList.add('hidden');
-                        }
-                    }, 2000);
-                }
-            });
-            
-            let lastScrollTop = 0;
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    floatingNav.classList.add('hidden');
-                    mainHeader.classList.add('hidden');
-                } else {
-                    floatingNav.classList.remove('hidden');
-                    if (scrollTop > 50) {
-                        mainHeader.classList.remove('hidden');
-                    } else {
-                        mainHeader.classList.remove('hidden');
-                    }
-                    
-                    clearTimeout(navTimeout);
-                    navTimeout = setTimeout(() => {
-                        if (scrollTop > 100) {
-                            floatingNav.classList.add('hidden');
-                            mainHeader.classList.add('hidden');
-                        }
-                    }, 2000);
-                }
-                
-                lastScrollTop = scrollTop;
-            });
-            
-            safeAddEventListener(getElement('nav-home-icon'), 'click', () => showTab('home-tab'));
-            safeAddEventListener(getElement('nav-auth-icon'), 'click', () => showTab('auth-tab'));
-            safeAddEventListener(getElement('nav-cart-icon'), 'click', () => showTab('cart-tab'));
-            safeAddEventListener(getElement('nav-checkout-icon'), 'click', () => showTab('checkout-tab'));
-            safeAddEventListener(getElement('nav-profile-icon'), 'click', () => showTab('profile-tab'));
-            safeAddEventListener(getElement('nav-logout-icon'), 'click', () => {
-                signOut(auth).then(() => showToast("تم تسجيل الخروج."));
-            });
-        };
-        
         const setupPaymentMethods = () => {
             const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
             const instapayDetails = getElement('instapay-details');
             const ewalletDetails = getElement('ewallet-details');
-            
+
             paymentMethods.forEach(method => {
-                safeAddEventListener(method, 'change', (e) => {
+                method.addEventListener('change', (e) => {
+                    document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('payment-option-selected'));
+                    e.target.closest('.payment-option').classList.add('payment-option-selected');
+
                     if (instapayDetails) instapayDetails.style.display = 'none';
                     if (ewalletDetails) ewalletDetails.style.display = 'none';
-                    
+
                     if (e.target.value === 'instapay' && instapayDetails) {
                         instapayDetails.style.display = 'block';
                     } else if (e.target.value === 'ewallet' && ewalletDetails) {
@@ -1412,55 +1339,50 @@
                     }
                 });
             });
+            // Initial selection style
+            document.querySelector('input[name="payment-method"]:checked').closest('.payment-option').classList.add('payment-option-selected');
         };
 
-        // Add event listeners safely
-        safeAddEventListener(getElement('login-btn'), 'click', handleLogin);
-        safeAddEventListener(getElement('signup-btn'), 'click', handleSignup);
-        
-        const toggleSignupBtn = getElement('toggle-signup');
-        if (toggleSignupBtn) {
-            toggleSignupBtn.addEventListener('click', () => {
-                const regFields = getElement('registration-fields');
-                if (!regFields) return;
-                
-                const isHidden = regFields.style.display === 'none';
-                regFields.style.display = isHidden ? 'block' : 'none';
-                
-                const loginBtn = getElement('login-btn');
-                const signupBtn = getElement('signup-btn');
-                
-                if (loginBtn) loginBtn.style.display = isHidden ? 'none' : 'block';
-                if (signupBtn) signupBtn.style.display = isHidden ? 'block' : 'none';
-                if (toggleSignupBtn) toggleSignupBtn.textContent = isHidden ? 'العودة لتسجيل الدخول' : 'إنشاء حساب جديد';
+        // Event Listeners
+        document.querySelectorAll('.nav-icon').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const id = e.currentTarget.id;
+                if (id === 'nav-logout-icon') {
+                    signOut(auth).then(() => {
+                        showToast("تم تسجيل الخروج.");
+                    });
+                } else {
+                    const tabId = id.replace('nav-', '').replace('-icon', '') + '-tab';
+                    if (tabId === 'checkout-tab' && Object.keys(currentCart).length === 0) {
+                        showToast('سلتك فارغة، أضف منتجات أولاً.', false);
+                        showTab('cart-tab');
+                    } else {
+                        showTab(tabId);
+                    }
+                }
             });
-        }
-
-        safeAddEventListener(getElement('change-password-btn'), 'click', handlePasswordChange);
-        
-        const logoutBtn = elements.nav.logout;
-        if (logoutBtn) {
-            safeAddEventListener(logoutBtn, 'click', () => signOut(auth).then(() => showToast("تم تسجيل الخروج.")));
-        }
-        
-        safeAddEventListener(getElement('goto-checkout-btn'), 'click', () => showTab('checkout-tab'));
-        safeAddEventListener(getElement('place-order-btn'), 'click', handlePlaceOrder);
-        
-        // أحداث البحث والتصفية
-        safeAddEventListener(getElement('search-input'), 'input', () => {
-            renderHomePage();
-        });
-        
-        safeAddEventListener(getElement('category-filter'), 'change', () => {
-            renderHomePage();
         });
 
-        // إعادة تحميل عشوائي كل 5 دقائق
-        setInterval(() => {
-            if (!isSearching && (!elements.searchInput || !elements.searchInput.value)) {
-                renderHomePage();
-            }
-        }, 5 * 60 * 1000);
+        getElement('goto-checkout-btn').addEventListener('click', () => showTab('checkout-tab'));
+        getElement('place-order-btn').addEventListener('click', handlePlaceOrder);
+        getElement('login-btn').addEventListener('click', handleLogin);
+        getElement('signup-btn').addEventListener('click', handleSignup);
+        getElement('search-input').addEventListener('input', renderHomePage);
+        getElement('category-filter').addEventListener('change', renderHomePage);
+        getElement('back-to-shopping').addEventListener('click', () => showTab('home-tab'));
+
+        getElement('toggle-signup').addEventListener('click', () => {
+            const regFields = getElement('registration-fields');
+            const isHidden = regFields.style.display === 'none';
+            regFields.style.display = isHidden ? 'block' : 'none';
+            getElement('login-btn').style.display = isHidden ? 'none' : 'block';
+            getElement('signup-btn').style.display = isHidden ? 'block' : 'none';
+            getElement('toggle-signup').textContent = isHidden ? 'العودة لتسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد';
+            getElement('auth-title').textContent = isHidden ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+        });
+
+        // Initialize payment method logic
+        setupPaymentMethods();
 
     </script>
 </body>
