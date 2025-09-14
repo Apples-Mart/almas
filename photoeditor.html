@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة تصحيح منظور الصور</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .upload-section {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+        
+        .upload-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .canvas-container {
+            position: relative;
+            margin: 20px auto;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            display: none;
+        }
+        
+        #imageCanvas {
+            display: block;
+            max-width: 100%;
+        }
+        
+        .point {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+            display: none;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .control-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .result-container {
+            display: none;
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        #resultCanvas {
+            max-width: 100%;
+            border: 1px solid #ddd;
+        }
+        
+        .instructions {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-right: 4px solid #3498db;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .instructions ol {
+            padding-right: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>أداة تصحيح منظور الصور</h1>
+        
+        <div class="instructions">
+            <h3>كيفية الاستخدام:</h3>
+            <ol>
+                <li>قم بتحميل صورة تحتوي على شكل رباعي مشوه (مثل ورقة مصورة بزاوية)</li>
+                <li>انقر على الزوايا الأربع للشكل الرباعي بالترتيب (أعلى اليسار، أعلى اليمين، أسفل اليمين، أسفل اليسار)</li>
+                <li>اضغط على زر "تصحيح المنظور" لتحويل الشكل إلى مستطيل</li>
+                <li>استخدم أدوات التحكم لضبط الإضاءة والتباين والتشبع</li>
+                <li>احفظ الصورة النهائية عند الرضا بالنتيجة</li>
+            </ol>
+        </div>
+        
+        <div class="upload-section">
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+            <button class="upload-btn" id="uploadButton">تحميل صورة</button>
+        </div>
+        
+        <div class="canvas-container" id="canvasContainer">
+            <canvas id="imageCanvas"></canvas>
+            <!-- سيتم إضافة نقاط التحكم هنا عبر JavaScript -->
+        </div>
+        
+        <div class="controls" id="controls">
+            <div class="control-group">
+                <label for="brightness">الإضاءة:</label>
+                <input type="range" id="brightness" min="-100" max="100" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="contrast">التباين:</label>
+                <input type="range" id="contrast" min="-100" max="100" value="0">
+            </div>
+            
+            <div class="control-group">
+                <label for="saturation">التشبع:</label>
+                <input type="range" id="saturation" min="-100" max="100" value="0">
+            </div>
+            
+            <button class="btn btn-primary" id="correctBtn">تصحيح المنظور</button>
+            <button class="btn btn-secondary" id="resetBtn">إعادة تعيين</button>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <h2>الصورة النهائية</h2>
+            <canvas id="resultCanvas"></canvas>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-primary" id="saveBtn">حفظ الصورة</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // العناصر الرئيسية
+            const uploadButton = document.getElementById('uploadButton');
+            const imageUpload = document.getElementById('imageUpload');
+            const canvasContainer = document.getElementById('canvasContainer');
+            const imageCanvas = document.getElementById('imageCanvas');
+            const ctx = imageCanvas.getContext('2d');
+            const controls = document.getElementById('controls');
+            const correctBtn = document.getElementById('correctBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const resultContainer = document.getElementById('resultContainer');
+            const resultCanvas = document.getElementById('resultCanvas');
+            const resultCtx = resultCanvas.getContext('2d');
+            const saveBtn = document.getElementById('saveBtn');
+            const brightnessSlider = document.getElementById('brightness');
+            const contrastSlider = document.getElementById('contrast');
+            const saturationSlider = document.getElementById('saturation');
+            
+            // المتغيرات العامة
+            let originalImage = null;
+            let points = [];
+            let isDragging = false;
+            let selectedPoint = null;
+            let editedImageData = null;
+            
+            // إعداد حدث تحميل الصورة
+            uploadButton.addEventListener('click', () => {
+                imageUpload.click();
+            });
+            
+            imageUpload.addEventListener('change', handleImageUpload);
+            
+            // معالجة تحميل الصورة
+            function handleImageUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalImage = img;
+                        setupCanvas(img);
+                        initializePoints();
+                        controls.style.display = 'flex';
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // إعداد Canvas وعرض الصورة
+            function setupCanvas(img) {
+                // حساب الأبعاد المناسبة لعرض الصورة
+                const maxWidth = Math.min(800, window.innerWidth - 40);
+                const scale = maxWidth / img.width;
+                const displayWidth = img.width * scale;
+                const displayHeight = img.height * scale;
+                
+                imageCanvas.width = displayWidth;
+                imageCanvas.height = displayHeight;
+                resultCanvas.width = displayWidth;
+                resultCanvas.height = displayHeight;
+                
+                canvasContainer.style.display = 'block';
+                
+                ctx.drawImage(img, 0, 0, displayWidth, displayHeight);
+            }
+            
+            // تهيئة نقاط التحكم
+            function initializePoints() {
+                // إزالة أي نقاط موجودة مسبقاً
+                points = [];
+                const pointElements = document.querySelectorAll('.point');
+                pointElements.forEach(point => point.remove());
+                
+                // إنشاء 4 نقاط وتحريكها لمواقع افتراضية (زوايا الصورة)
+                const rect = imageCanvas.getBoundingClientRect();
+                const canvasLeft = rect.left + window.scrollX;
+                const canvasTop = rect.top + window.scrollY;
+                
+                const pointPositions = [
+                    { x: imageCanvas.width * 0.2, y: imageCanvas.height * 0.2 }, // أعلى اليسار
+                    { x: imageCanvas.width * 0.8, y: imageCanvas.height * 0.2 }, // أعلى اليمين
+                    { x: imageCanvas.width * 0.8, y: imageCanvas.height * 0.8 }, // أسفل اليمين
+                    { x: imageCanvas.width * 0.2, y: imageCanvas.height * 0.8 }  // أسفل اليسار
+                ];
+                
+                for (let i = 0; i < 4; i++) {
+                    const point = document.createElement('div');
+                    point.className = 'point';
+                    point.style.left = (canvasLeft + pointPositions[i].x) + 'px';
+                    point.style.top = (canvasTop + pointPositions[i].y) + 'px';
+                    point.dataset.index = i;
+                    
+                    document.body.appendChild(point);
+                    points.push({
+                        element: point,
+                        x: pointPositions[i].x,
+                        y: pointPositions[i].y
+                    });
+                    
+                    // إضافة أحداث السحب والإفلات للنقاط
+                    point.addEventListener('mousedown', startDragging);
+                }
+                
+                // إضافة أحداث mouseup و mousemove للمستند
+                document.addEventListener('mousemove', dragPoint);
+                document.addEventListener('mouseup', stopDragging);
+                
+                // إعادة رسم Canvas مع إظهار المناطق المحددة
+                redrawCanvasWithSelection();
+            }
+            
+            // بدء سحب نقطة
+            function startDragging(e) {
+                isDragging = true;
+                selectedPoint = parseInt(e.target.dataset.index);
+                e.preventDefault();
+            }
+            
+            // سحب نقطة
+            function dragPoint(e) {
+                if (!isDragging || selectedPoint === null) return;
+                
+                const rect = imageCanvas.getBoundingClientRect();
+                const canvasLeft = rect.left + window.scrollX;
+                const canvasTop = rect.top + window.scrollY;
+                
+                // حساب الموضع النسبي داخل Canvas
+                let x = e.clientX - canvasLeft;
+                let y = e.clientY - canvasTop;
+                
+                // التأكد من أن النقطة داخل Canvas
+                x = Math.max(0, Math.min(imageCanvas.width, x));
+                y = Math.max(0, Math.min(imageCanvas.height, y));
+                
+                // تحديث موضع النقطة
+                points[selectedPoint].x = x;
+                points[selectedPoint].y = y;
+                
+                // تحديث موضع عنصر النقطة
+                points[selectedPoint].element.style.left = (canvasLeft + x) + 'px';
+                points[selectedPoint].element.style.top = (canvasTop + y) + 'px';
+                
+                // إعادة رسم Canvas مع إظهار المناطق المحددة
+                redrawCanvasWithSelection();
+            }
+            
+            // التوقف عن سحب نقطة
+            function stopDragging() {
+                isDragging = false;
+                selectedPoint = null;
+            }
+            
+            // إعادة رسم Canvas مع إظهار المناطق المحددة
+            function redrawCanvasWithSelection() {
+                ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+                ctx.drawImage(originalImage, 0, 0, imageCanvas.width, imageCanvas.height);
+                
+                // رسم خطوط بين النقاط
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.closePath();
+                
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // رسم منطقة شبه شفافة خارج التحديد
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, imageCanvas.width, imageCanvas.height);
+                
+                // إعادة وضعية الرسم إلى الوضع الافتراضي
+                ctx.globalCompositeOperation = 'source-over';
+            }
+            
+            // تصحيح المنظور
+            correctBtn.addEventListener('click', correctPerspective);
+            
+            function correctPerspective() {
+                if (points.length !== 4) return;
+                
+                // تحديد نقاط المصدر (النقاط المحددة) ونقاط الهدف (مستطيل كامل)
+                const srcPoints = [
+                    { x: points[0].x, y: points[0].y },
+                    { x: points[1].x, y: points[1].y },
+                    { x: points[2].x, y: points[2].y },
+                    { x: points[3].x, y: points[3].y }
+                ];
+                
+                // حساب أبعاد المستطيل الناتج بناءً على مسافات النقاط
+                const width = Math.max(
+                    distance(srcPoints[0], srcPoints[1]),
+                    distance(srcPoints[2], srcPoints[3])
+                );
+                
+                const height = Math.max(
+                    distance(srcPoints[0], srcPoints[3]),
+                    distance(srcPoints[1], srcPoints[2])
+                );
+                
+                resultCanvas.width = width;
+                resultCanvas.height = height;
+                
+                // نقاط الهدف (زوايا المستطيل)
+                const dstPoints = [
+                    { x: 0, y: 0 },
+                    { x: width, y: 0 },
+                    { x: width, y: height },
+                    { x: 0, y: height }
+                ];
+                
+                // تطبيق تحويل المنظور
+                applyPerspectiveTransform(originalImage, srcPoints, dstPoints);
+                
+                // تطبيق التعديلات (إضاءة، تباين، تشبع)
+                applyImageAdjustments();
+                
+                // إظهار منطقة النتيجة
+                resultContainer.style.display = 'block';
+            }
+            
+            // حساب المسافة بين نقطتين
+            function distance(p1, p2) {
+                return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+            }
+            
+            // تطبيق تحويل المنظور
+            function applyPerspectiveTransform(image, srcPoints, dstPoints) {
+                // حساب مصفوفة التحويل
+                const transformMatrix = calculateTransformMatrix(srcPoints, dstPoints);
+                
+                // تطبيق التحويل على الصورة
+                resultCtx.setTransform(
+                    transformMatrix[0], transformMatrix[3],
+                    transformMatrix[1], transformMatrix[4],
+                    transformMatrix[2], transformMatrix[5]
+                );
+                
+                resultCtx.drawImage(image, 0, 0, image.width, image.height);
+                
+                // حفظ بيانات الصورة المحولة للتعديل لاحقاً
+                editedImageData = resultCtx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
+                
+                // إعادة ضبط التحويلات
+                resultCtx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            
+            // حساب مصفوفة التحويل
+            function calculateTransformMatrix(srcPoints, dstPoints) {
+                // حل معادلات التحويل الأفيني باستخدام المصفوفات
+                // هذه معادلة مبسطة للتحويل الأفيني (ليست تحويل منظور كامل)
+                
+                const src = [
+                    srcPoints[0].x, srcPoints[0].y,
+                    srcPoints[1].x, srcPoints[1].y,
+                    srcPoints[2].x, srcPoints[2].y
+                ];
+                
+                const dst = [
+                    dstPoints[0].x, dstPoints[0].y,
+                    dstPoints[1].x, dstPoints[1].y,
+                    dstPoints[2].x, dstPoints[2].y
+                ];
+                
+                // حساب المحدد
+                const determinant = src[0] * (src[4] - src[5]) - src[1] * (src[2] - src[4]) + src[3] * (src[2] - src[3]);
+                
+                // حساب معكوس المصفوفة
+                const inverse = [
+                    (src[4] - src[5]) / determinant, (src[3] - src[5]) / determinant, (src[3] - src[4]) / determinant,
+                    (src[1] - src[2]) / determinant, (src[0] - src[2]) / determinant, (src[0] - src[1]) / determinant,
+                    (src[1]*src[5] - src[2]*src[4]) / determinant, (src[2]*src[3] - src[0]*src[5]) / determinant, (src[0]*src[4] - src[1]*src[3]) / determinant
+                ];
+                
+                // حساب مصفوفة التحويل
+                const a = inverse[0] * dst[0] + inverse[1] * dst[2] + inverse[2] * dst[4];
+                const b = inverse[3] * dst[0] + inverse[4] * dst[2] + inverse[5] * dst[4];
+                const c = inverse[6] * dst[0] + inverse[7] * dst[2] + inverse[8] * dst[4];
+                const d = inverse[0] * dst[1] + inverse[1] * dst[3] + inverse[2] * dst[5];
+                const e = inverse[3] * dst[1] + inverse[4] * dst[3] + inverse[5] * dst[5];
+                const f = inverse[6] * dst[1] + inverse[7] * dst[3] + inverse[8] * dst[5];
+                
+                return [a, b, c, d, e, f];
+            }
+            
+            // تطبيق تعديلات الصورة
+            function applyImageAdjustments() {
+                if (!editedImageData) return;
+                
+                const brightness = parseInt(brightnessSlider.value);
+                const contrast = parseInt(contrastSlider.value);
+                const saturation = parseInt(saturationSlider.value);
+                
+                const data = editedImageData.data;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    // تطبيق الإضاءة
+                    data[i] += brightness;     // R
+                    data[i+1] += brightness;   // G
+                    data[i+2] += brightness;   // B
+                    
+                    // تطبيق التباين
+                    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                    data[i] = clamp(factor * (data[i] - 128) + 128);
+                    data[i+1] = clamp(factor * (data[i+1] - 128) + 128);
+                    data[i+2] = clamp(factor * (data[i+2] - 128) + 128);
+                    
+                    // تطبيق التشبع
+                    const gray = 0.2989 * data[i] + 0.5870 * data[i+1] + 0.1140 * data[i+2];
+                    data[i] = clamp(gray + (data[i] - gray) * (1 + saturation / 100));
+                    data[i+1] = clamp(gray + (data[i+1] - gray) * (1 + saturation / 100));
+                    data[i+2] = clamp(gray + (data[i+2] - gray) * (1 + saturation / 100));
+                }
+                
+                // وضع البيانات المعدلة على Canvas
+                resultCtx.putImageData(editedImageData, 0, 0);
+            }
+            
+            // التأكد من أن قيمة اللون بين 0 و 255
+            function clamp(value) {
+                return Math.max(0, Math.min(255, value));
+            }
+            
+            // إعادة تعيين كل شيء
+            resetBtn.addEventListener('click', resetAll);
+            
+            function resetAll() {
+                if (originalImage) {
+                    setupCanvas(originalImage);
+                    initializePoints();
+                }
+                
+                resultContainer.style.display = 'none';
+                brightnessSlider.value = 0;
+                contrastSlider.value = 0;
+                saturationSlider.value = 0;
+            }
+            
+            // إضافة مستمعي الأحداث لمتغيرات التحكم
+            brightnessSlider.addEventListener('input', applyImageAdjustments);
+            contrastSlider.addEventListener('input', applyImageAdjustments);
+            saturationSlider.addEventListener('input', applyImageAdjustments);
+            
+            // حفظ الصورة
+            saveBtn.addEventListener('click', saveImage);
+            
+            function saveImage() {
+                const link = document.createElement('a');
+                link.download = 'صورة-مصححة.png';
+                link.href = resultCanvas.toDataURL('image/png');
+                link.click();
+            }
+        });
+    </script>
+</body>
+</html>
